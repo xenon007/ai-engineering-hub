@@ -1,6 +1,6 @@
 # Evaluating RAGs!
 
-In this repo we provide astreamlined approach to evaluating Retrieval-Augmented Generation (RAG) systems. It includes tools for assessing response accuracy, relevance, and overall performance, helping you optimize and refine RAG models with ease.
+In this repo we provide a streamlined approach to evaluating Retrieval-Augmented Generation (RAG) systems. It includes tools for assessing response accuracy, relevance, and overall performance, helping you optimize and refine RAG models with ease.
 ---
 
 ## 📬 Stay Updated with Our Newsletter!
