@@ -1,10 +1,11 @@
 # Evaluating RAGs!
 
 In this repo we provide a streamlined approach to evaluating Retrieval-Augmented Generation (RAG) systems. It includes tools for assessing response accuracy, relevance, and overall performance, helping you optimize and refine RAG models with ease.
+
 ---
 
 ## 📬 Stay Updated with Our Newsletter!
-**Get a FREE Data Science eBook** 📖 with 150+ essential lessons in Data Science when you subscribe to our newsletter! Stay in the loop with the latest tutorials, insights, and exclusive resources. [Subscribe now!](https://join.dailydoseofds.com)
+Get a FREE Data Science eBook 📖 with 150+ essential lessons in Data Science when you subscribe to our newsletter! Stay in the loop with the latest tutorials, insights, and exclusive resources. [Subscribe now!](https://join.dailydoseofds.com)
 
 [![Daily Dose of Data Science Newsletter](https://github.com/patchy631/ai-engineering/blob/main/resources/join_ddods.png)](https://join.dailydoseofds.com)
 
