@@ -5,7 +5,7 @@ This project leverages Microsoft's AutoGen to build an advanced Coding and Stock
 
 ## Demo
 Check out the demo video below to see the project in action:
-[![Demo Video](https://img.youtube.com/vi/dQw4w9WgXcQ/0.jpg)](https://youtu.be/dQw4w9WgXcQ)
+[![Demo Video]](https://youtu.be/ijHtziG0knY)  
 
 ## Installation
 
