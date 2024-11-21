@@ -9,32 +9,12 @@ Check out the demo video below to see the project in action:
 
 ## Installation
 
-Follow these steps to set up the project on your local machine:
-
-1. **Clone the Repository**:
+**Install Dependencies**:
+   Ensure you have Python 3.11 or later installed.
    ```bash
-   git clone https://github.com/your-repository-url.git
-   cd coding-and-stock-analyst
+   pip install imagine_sdk-0.4.1-py3-none-any.whl[langchain]
+   pip install autogen
    ```
-
-2. **Install Dependencies**:
-   Ensure you have Python 3.8 or later installed. Use the following command to install required dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. **Run the Application**:
-   Launch the application with:
-   ```bash
-   python main.py
-   ```
-
-4. **Access the Interface**:
-   Open your browser and navigate to:
-   ```
-   http://localhost:5000
-   ```
-
 ## Features
 
 - Advanced LLM-powered stock analysis
@@ -44,7 +24,3 @@ Follow these steps to set up the project on your local machine:
 ## Contribution
 
 Contributions are welcome! Please fork the repository and submit a pull request with your improvements.
-
-## License
-
-This project is licensed under the MIT License.
