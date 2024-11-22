@@ -13,7 +13,7 @@ Check out the demo video below to see the project in action:
    Ensure you have Python 3.11 or later installed.
    ```bash
    pip install imagine_sdk-0.4.1-py3-none-any.whl[langchain]
-   pip install autogen
+   pip install autogen-agentchat~=0.2
    ```
 ## Features
 
