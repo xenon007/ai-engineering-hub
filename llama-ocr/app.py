@@ -13,7 +13,16 @@ st.set_page_config(
 
 # Title and description in main area
 st.title("🦙 Llama OCR")
+
+# Add clear button to top right
+col1, col2 = st.columns([6,1])
+with col2:
+    if st.button("Clear 🗑️"):
+        st.session_state['ocr_result'] = None
+        st.rerun()
+
 st.markdown("Extract structured text from images using Llama 3.2 Vision!")
+st.markdown("---")
 
 # Move upload controls to sidebar
 with st.sidebar:
@@ -42,11 +51,6 @@ with st.sidebar:
                     st.session_state['ocr_result'] = response.message.content
                 except Exception as e:
                     st.error(f"Error processing image: {str(e)}")
-    
-    # Add clear button at bottom of sidebar
-    if st.button("Clear 🗑️"):
-        st.session_state['ocr_result'] = None
-        st.rerun()
 
 # Main content area for results
 if 'ocr_result' in st.session_state:
