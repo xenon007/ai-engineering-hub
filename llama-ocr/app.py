@@ -18,10 +18,11 @@ st.title("🦙 Llama OCR")
 col1, col2 = st.columns([6,1])
 with col2:
     if st.button("Clear 🗑️"):
-        st.session_state['ocr_result'] = None
+        if 'ocr_result' in st.session_state:
+            del st.session_state['ocr_result']
         st.rerun()
 
-st.markdown("Extract structured text from images using Llama 3.2 Vision!")
+st.markdown('<p style="margin-top: -20px;">Extract structured text from images using Llama 3.2 Vision!</p>', unsafe_allow_html=True)
 st.markdown("---")
 
 # Move upload controls to sidebar
