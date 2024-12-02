@@ -61,4 +61,4 @@ else:
 
 # Footer
 st.markdown("---")
-st.markdown("Made with ❤️ using Llama Vision Model2 | [Report an Issue](https://github.com/yourusername/llama-ocr/issues)")
+st.markdown("Made with ❤️ using Llama Vision Model2 | [Report an Issue](https://github.com/patchy631/ai-engineering-hub/issues)")
