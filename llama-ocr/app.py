@@ -11,6 +11,18 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
+# Add custom CSS for scrollable container
+st.markdown("""
+    <style>
+    .uploadSection {
+        max-height: 80vh;
+        overflow-y: auto;
+        padding: 1rem;
+        border-radius: 0.5rem;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
 # Title and description
 st.title("🦙 Llama OCR")
 
@@ -18,8 +30,7 @@ st.title("🦙 Llama OCR")
 col_desc, col_clear = st.columns([4, 1])
 with col_desc:
     st.markdown("""
-    Extract text from images using Llama Vision model. 
-    Upload an image and get structured, formatted text output.
+    Extract structured text from images using Llama 3.2 Vision!. 
     """)
 with col_clear:
     if st.button("Clear 🗑️"):
@@ -35,6 +46,8 @@ with container:
 
     # Left panel (col1) for image upload
     with col1:
+        # Wrap the expander content in a div with the scrollable class
+        st.markdown('<div class="uploadSection">', unsafe_allow_html=True)
         with st.expander("Upload Image", expanded=True):
             uploaded_file = st.file_uploader("Choose an image...", type=['png', 'jpg', 'jpeg'])
             
@@ -60,6 +73,7 @@ with container:
                             st.session_state['ocr_result'] = response.message.content
                         except Exception as e:
                             st.error(f"Error processing image: {str(e)}")
+        st.markdown('</div>', unsafe_allow_html=True)
 
     # Right panel (col2) for results
     with col2:
