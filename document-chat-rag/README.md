@@ -7,7 +7,7 @@ This project leverages a locally Llama 3.3 to build a RAG application to **chat 
 
 Watch the demo video:
 
-[![Watch the video](https://img.youtube.com/vi/YOUTUBE_VIDEO_ID/maxresdefault.jpg)](https://www.youtube.com/watch?v=ZgNJMWipirk)
+[![Watch the video](https://github.com/patchy631/ai-engineering-hub/blob/main/document-chat-rag/resources/thumbnail.png)](https://www.youtube.com/watch?v=ZgNJMWipirk)
 
 
 ## Installation and setup
