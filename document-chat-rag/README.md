@@ -17,14 +17,14 @@ Watch the demo video:
    # setup ollama on linux 
    curl -fsSL https://ollama.com/install.sh | sh
    # pull llama 3.2 vision model
-   ollama run llama3.2-vision 
+   ollama pull llama3.3 
    ```
 
 
 **Install Dependencies**:
    Ensure you have Python 3.11 or later installed.
    ```bash
-   pip install streamlit ollama
+   pip install streamlit ollama llama-index-vector-stores-qdrant
    ```
 
 ---
