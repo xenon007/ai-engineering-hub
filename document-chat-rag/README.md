@@ -19,7 +19,12 @@ Watch the demo video:
    # pull llama 3.2 vision model
    ollama pull llama3.3 
    ```
-
+**Setup Qdrant VectorDB**
+   ```bash
+   docker run -p 6333:6333 -p 6334:6334 \
+   -v $(pwd)/qdrant_storage:/qdrant/storage:z \
+   qdrant/qdrant
+   ```
 
 **Install Dependencies**:
    Ensure you have Python 3.11 or later installed.
