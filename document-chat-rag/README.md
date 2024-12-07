@@ -1,3 +1,6 @@
+<a target="_blank" href="https://lightning.ai/akshay-ddods/studios/rag-using-llama-3-3-by-meta-ai">
+  <img src="https://pl-bolts-doc-images.s3.us-east-2.amazonaws.com/app-2/studio-badge.svg" alt="Open In Studio"/>
+</a>
 
 # LLama3.3-RAG application
 
