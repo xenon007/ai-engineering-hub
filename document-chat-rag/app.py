@@ -29,7 +29,7 @@ client = None
 
 @st.cache_resource
 def load_llm():
-    llm = Ollama(model="llama3.2:1b", request_timeout=120.0)
+    llm = Ollama(model="llama3.3", request_timeout=120.0)
     return llm
 
 def reset_chat():
@@ -125,7 +125,7 @@ with st.sidebar:
 col1, col2 = st.columns([6, 1])
 
 with col1:
-    st.header(f"Chat with Docs using Llama-3.2")
+    st.header(f"Chat with Docs using Llama-3.3")
 
 with col2:
     st.button("Clear ↺", on_click=reset_chat)
