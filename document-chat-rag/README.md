@@ -16,7 +16,7 @@ Watch the demo video:
    ```bash
    # setup ollama on linux 
    curl -fsSL https://ollama.com/install.sh | sh
-   # pull llama 3.2 vision model
+   # pull llama 3.3:70B
    ollama pull llama3.3 
    ```
 **Setup Qdrant VectorDB**
