@@ -47,7 +47,7 @@ with st.sidebar:
 
 def generate_content(topic):
     llm = LLM(
-        model="command-r7b-12-2024",
+        model="command-r",
         temperature=0.7
     )
 
