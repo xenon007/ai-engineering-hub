@@ -7,7 +7,9 @@ analyze_draft:
 
     2. Identify key sections and what each section is about
 
-    3. You must carefully Identify urls present in the markdown file to media that are relevant to the blog and associated with the key sections
+    3. For each section, extract all URLs that appear inside image markdown syntax ![](image_url)
+
+    4. You must associate these identified image urls to their correspoinding sections, so that we can use them with the tweets as media pieces
 
     Focus on details that are important for a comprehensive understanding of
     the blog.
@@ -21,16 +23,16 @@ analyze_draft:
 
 create_twitter_thread_plan:
   description: |
-    Develop an engaging Twitter thread plan for {draft_path}
+    Develop an engaging Twitter thread based on the draft analysis provided
 
     The thread should break down complex technical concepts into digestible, tweet-sized chunks
     that maintain technical accuracy while being accessible.
 
     Plan should include:
-    - A strong hook tweet that captures attention, it should be under 10 words and based on the title of the blog
+    - A strong hook tweet that captures attention, it should be under 10 words, it must be same as the title of the blog
     - Logical flow from basic to advanced concepts
     - Code snippets or key technical highlights that fit Twitter's format
-    - Relevant urls to media that are associated with the key sections and can be associated with a tweet
+    - Relevant urls to media that are associated with the key sections and must be associated with their corresponding tweets
     - Clear takeaways for engineering audience
 
     Make sure to cover:
