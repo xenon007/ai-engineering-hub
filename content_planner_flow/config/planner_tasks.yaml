@@ -1,0 +1,50 @@
+analyze_draft:
+  description: |
+    Analyze the markdown file at {draft_path} to create a developer-focused
+    technical overview
+
+    1. Map out the core idea that the blog discusses
+
+    2. Identify key sections and what each section is about
+
+    3. You must carefully Identify urls present in the markdown file to media that are relevant to the blog and associated with the key sections
+
+    Focus on details that are important for a comprehensive understanding of
+    the blog.
+  expected_output: |
+    A technical analysis containing:
+    - Blog title and core concept/idea
+    - Key technical sections identified with their main points
+    - Important code examples or technical concepts covered
+    - Key takeaways for developers
+    - Relevant urls to media that are associated with the key sections and can be associated with a tweet, this must be done
+
+create_twitter_thread_plan:
+  description: |
+    Develop an engaging Twitter thread plan for {draft_path}
+
+    The thread should break down complex technical concepts into digestible, tweet-sized chunks
+    that maintain technical accuracy while being accessible.
+
+    Plan should include:
+    - A strong hook tweet that captures attention, it should be under 10 words and based on the title of the blog
+    - Logical flow from basic to advanced concepts
+    - Code snippets or key technical highlights that fit Twitter's format
+    - Relevant urls to media that are associated with the key sections and can be associated with a tweet
+    - Clear takeaways for engineering audience
+
+    Make sure to cover:
+    - The core problem being solved
+    - Key technical innovations or approaches
+    - Interesting implementation details
+    - Real-world applications or benefits
+    - Call to action for the conclusion
+    - Add relevant urls to each tweet that can be associated with a tweet
+
+    Focus on creating a narrative that technical audiences will find valuable
+    while keeping each tweet concise, accessible and impactful.
+  expected_output: |
+    A Twitter thread with a list of tweets, where each tweet has the following:
+    - content
+    - urls to media that are associated with the tweet, whenever possible
+    - is_hook: true if the tweet is a hook tweet, false otherwise
