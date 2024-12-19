@@ -24,6 +24,13 @@ def json_to_typefully_content(thread_json: Dict[str, Any]) -> str:
     
     return '\n\n\n\n'.join(formatted_tweets)
 
+def json_to_linkedin_content(thread_json: Dict[str, Any]) -> str:
+    """Convert JSON thread format to Typefully's format."""
+    content = thread_json['content']
+    if 'url' in thread_json and thread_json['url']:
+        content += f"\n{thread_json['url']}"
+    return content
+
 def schedule_thread(
     content: str,
     schedule_date: str = "next-free-slot",
@@ -56,7 +63,8 @@ def schedule(
     thread_model: BaseModel,
     hours_from_now: int = 1,
     threadify: bool = False,
-    share: bool = True
+    share: bool = True,
+    post_type: str = "twitter"
 ) -> Optional[Dict[str, Any]]:
     """
     Schedule a thread from a Pydantic model.
@@ -75,7 +83,10 @@ def schedule(
         thread_json = thread_model.pydantic.model_dump()
         print("######## Thread JSON: ", thread_json)
         # Convert to Typefully format
-        thread_content = json_to_typefully_content(thread_json)
+        if post_type == "twitter":
+            thread_content = json_to_typefully_content(thread_json)
+        elif post_type == "linkedin":
+            thread_content = json_to_linkedin_content(thread_json)
         
         # Calculate schedule time
         schedule_date = (datetime.datetime.utcnow() + 

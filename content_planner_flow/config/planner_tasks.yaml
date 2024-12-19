@@ -23,7 +23,7 @@ analyze_draft:
 
 create_twitter_thread_plan:
   description: |
-    Develop an engaging Twitter thread based on the draft analysis provided
+    Develop an engaging Twitter thread based on the draft analysis provided and closely follow the writing style prvided in the {path_to_example_threads}
 
     The thread should break down complex technical concepts into digestible, tweet-sized chunks
     that maintain technical accuracy while being accessible.
@@ -36,6 +36,7 @@ create_twitter_thread_plan:
     - Clear takeaways for engineering audience
 
     Make sure to cover:
+    - close follow the writing style provided in the {path_to_example_threads}
     - The core problem being solved
     - Key technical innovations or approaches
     - Interesting implementation details
@@ -50,3 +51,33 @@ create_twitter_thread_plan:
     - content
     - urls to media that are associated with the tweet, whenever possible
     - is_hook: true if the tweet is a hook tweet, false otherwise
+
+
+create_linkedin_post_plan:
+  description: |
+    Develop a comprehensive LinkedIn post based on the draft analysis provided 
+
+    The post should present technical content in a professional, long-form format
+    while maintaining engagement and readability.
+
+    Plan should include:
+    - An attention-grabbing opening statement, it should be same as the title of the blog
+    - Well-structured body that breaks down the technical content
+    - Professional tone suitable for LinkedIn's business audience
+    - One main blog URL placed strategically at the end of the post
+    - Strategic use of line breaks and formatting
+    - Relevant hashtags (3-5 maximum)
+
+    Make sure to cover:
+    - The core technical problem and its business impact
+    - Key solutions and technical approaches
+    - Real-world applications and benefits
+    - Professional insights or lessons learned
+    - Clear call to action
+
+    Focus on creating content that resonates with both technical professionals
+    and business leaders while maintaining technical accuracy.
+  expected_output: |
+    A LinkedIn post plan containing:
+      - content
+      - a main blog url that is associated with the post
