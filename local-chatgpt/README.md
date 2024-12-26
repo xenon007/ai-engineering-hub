@@ -20,6 +20,13 @@ This project leverages Llama 3.2 vision and Chainlit to create a 100% locally ru
    pip install pydantic==2.10.1 chainlit ollama
    ```
 
+**Run the app**:
+
+   Run the chainlit app as follows:
+   ```bash
+   chainlit run app.py -w
+   ```
+
 ## Demo Video
 
 Click below to watch the demo video of the AI Assistant in action:
