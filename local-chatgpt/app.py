@@ -13,6 +13,15 @@ async def start_chat():
         ],
     )
 
+    msg = cl.Message(content="")
+
+    start_message = "Hello, I'm your 100% local alternative to ChatGPT running on Llama3.2-Vision. How can I help you today?"
+
+    for token in start_message:
+        await msg.stream_token(token)
+
+    await msg.send()
+
 @cl.step(type="tool")
 async def tool(input_message, image=None):
 
