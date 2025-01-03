@@ -9,18 +9,9 @@ import time
 import uuid
 
 from IPython.display import Markdown, display
-
 from dotenv import load_dotenv
-
-from llama_index.core import Settings
-from llama_index.llms.ollama import Ollama
-from llama_index.core import PromptTemplate
-from llama_index.embeddings.huggingface import HuggingFaceEmbedding
-from llama_index.core import VectorStoreIndex, ServiceContext, SimpleDirectoryReader
-
-from llama_index.llms.sambanovasystems import SambaNovaCloud
-
-
+from llama_index.core import SimpleDirectoryReader
+from rag_code import EmbedData, QdrantVDB_QB, Retriever, RAG
 
 import streamlit as st
 
@@ -29,22 +20,10 @@ if "id" not in st.session_state:
     st.session_state.file_cache = {}
 
 session_id = st.session_state.id
+collection_name = "chat with docs"
+batch_size = 32
 
 load_dotenv()
-
-client = openai.OpenAI(
-    api_key=os.environ.get("SAMBANOVA_API_KEY"),
-    base_url="https://api.sambanova.ai/v1",
-)
-
-@st.cache_resource
-def load_llm():
-    llm = SambaNovaCloud(
-                        model="Meta-Llama-3.3-70B-Instruct",
-                        temperature=0.7,
-                        top_p=0.01,
-                    )
-    return llm
 
 def reset_chat():
     st.session_state.messages = []
@@ -97,35 +76,28 @@ with st.sidebar:
                         st.stop()
                     
                     docs = loader.load_data()
+                    documents = [doc.text for doc in docs]
 
-                    # setup embedding model
-                    llm=load_llm()
-                    embed_model = HuggingFaceEmbedding( model_name="BAAI/bge-large-en-v1.5", trust_remote_code=True)
-                    # Creating an index over loaded data
-                    Settings.embed_model = embed_model
-                    index = VectorStoreIndex.from_documents(docs, show_progress=True)
+                    # embed data    
+                    embeddata = EmbedData(embed_model_name="BAAI/bge-large-en-v1.5", batch_size=batch_size)
+                    embeddata.embed(documents)
 
-                    # Create the query engine, where we use a cohere reranker on the fetched nodes
-                    Settings.llm = llm
-                    query_engine = index.as_query_engine(streaming=True)
+                    # set up vector database
+                    qdrant_vdb = QdrantVDB_QB(collection_name=collection_name,
+                                              batch_size=batch_size,
+                                              vector_dim=1024)
+                    qdrant_vdb.define_client()
+                    qdrant_vdb.create_collection()
+                    qdrant_vdb.ingest_data(embeddata=embeddata)
 
-                    # ====== Customise prompt template ======
-                    qa_prompt_tmpl_str = (
-                    "Context information is below.\n"
-                    "---------------------\n"
-                    "{context_str}\n"
-                    "---------------------\n"
-                    "Given the context information above I want you to think step by step to answer the query in a crisp manner, incase case you don't know the answer say 'I don't know!'.\n"
-                    "Query: {query_str}\n"
-                    "Answer: "
-                    )
-                    qa_prompt_tmpl = PromptTemplate(qa_prompt_tmpl_str)
+                    # set up retriever
+                    retriever = Retriever(vector_db=qdrant_vdb, embeddata=embeddata)
 
-                    query_engine.update_prompts(
-                        {"response_synthesizer:text_qa_template": qa_prompt_tmpl}
-                    )
-                    
+                    # set up rag
+                    query_engine = RAG(retriever=retriever, llm_name="Meta-Llama-3.3-70B-Instruct")
+
                     st.session_state.file_cache[file_key] = query_engine
+
                 else:
                     query_engine = st.session_state.file_cache[file_key]
 
@@ -171,12 +143,15 @@ if prompt := st.chat_input("What's up?"):
         # Simulate stream of response with milliseconds delay
         streaming_response = query_engine.query(prompt)
         
-        for chunk in streaming_response.response_gen:
-            full_response += chunk
-            message_placeholder.markdown(full_response + "▌")
+        for chunk in streaming_response:
+            try:
+                new_text = chunk.raw["choices"][0]["delta"]["content"]
+                full_response += new_text
+                message_placeholder.markdown(full_response + "▌")
+            except:
+                pass
 
         message_placeholder.markdown(full_response)
-        # st.session_state.context = ctx
 
     # Add assistant response to chat history
     st.session_state.messages.append({"role": "assistant", "content": full_response})
