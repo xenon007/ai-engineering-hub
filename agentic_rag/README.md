@@ -21,7 +21,7 @@ This project leverages CrewAI to build an Agentic RAG that can search through yo
 
 **Running the app and Notebook**:
 
-You can run the demo in ```demo_llama3.2.ipynb``` and app in ```app_llama3.2.py``` using command ``` streamlit run aoo_llama3.2.py ```
+You can run the demo in ```demo_llama3.2.ipynb``` and app in ```app_llama3.2.py``` using command ``` streamlit run app_llama3.2.py ```
 
 ---
 
