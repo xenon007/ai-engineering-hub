@@ -3,6 +3,7 @@ import os
 import tempfile
 import gc
 import base64
+import time
 
 from crewai import Agent, Crew, Process, Task
 from crewai_tools import SerperDevTool
@@ -137,7 +138,9 @@ with st.sidebar:
 # ===========================
 #   Main Chat Interface
 # ===========================
-st.title("Chat with PDF")
+st.markdown("""
+    # Agentic RAG powered by <img src="data:image/png;base64,{}" width="120" style="vertical-align: -3px;">
+""".format(base64.b64encode(open("assets/crewai.png", "rb").read()).decode()), unsafe_allow_html=True)
 
 # Render existing conversation
 for message in st.session_state.messages:
@@ -159,13 +162,25 @@ if prompt:
 
     # 3. Get the response
     with st.chat_message("assistant"):
-        # (Optional) Show a quick spinner during the *response generation*, 
-        # but not for indexing. Remove if you don't want it.
+        message_placeholder = st.empty()
+        full_response = ""
+        
+        # Get the complete response first
         with st.spinner("Thinking..."):
             inputs = {"query": prompt}
-            result = st.session_state.crew.kickoff(inputs=inputs)
+            result = st.session_state.crew.kickoff(inputs=inputs).raw
+        
+        # Split by lines first to preserve code blocks and other markdown
+        lines = result.split('\n')
+        for i, line in enumerate(lines):
+            full_response += line
+            if i < len(lines) - 1:  # Don't add newline to the last line
+                full_response += '\n'
+            message_placeholder.markdown(full_response + "▌")
+            time.sleep(0.15)  # Adjust the speed as needed
+        
+        # Show the final response without the cursor
+        message_placeholder.markdown(full_response)
 
-        st.markdown(result)
-
-    # 4. Save assistant’s message to session
+    # 4. Save assistant's message to session
     st.session_state.messages.append({"role": "assistant", "content": result})
