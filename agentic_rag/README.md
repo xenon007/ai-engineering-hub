@@ -4,7 +4,7 @@
 This project leverages CrewAI to build an Agentic RAG that can search through your docs and fallbacks to web search incase it don't find the answer in the docs, powered by a locally running Llama 3.2!
 
 ### Watch Demo on YouTube
-[![Watch Demo on YouTube](https://github.com/patchy631/ai-engineering-hub/blob/main/content_planner_flow/resources/thumbnail.png)](https://youtu.be/O4yBW_GTRk0)
+[![Watch Demo on YouTube](https://github.com/patchy631/ai-engineering-hub/blob/main/agentic_rag/thumbnail/thumbnail.png)](https://youtu.be/O4yBW_GTRk0)
 
 
 ## Installation and setup
