@@ -17,7 +17,7 @@ This project leverages [CometML Opik](https://github.com/comet-ml/opik) to build
    pip install opik llama-index llama-index-agent-openai llama-index-llms-openai --upgrade --quiet
    ```
 
-**Running the app and Notebook**:
+**Running**:
 
 You can run the code in notebook ```demo.ipynb```.
 
