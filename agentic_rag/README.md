@@ -24,9 +24,9 @@ Before that make sure you Grab your FireCrawl API keys to seach web.
    pip install crewai crewai-tools chonkie[semantic] markitdown qdrant-client fastembed
    ```
 
-**Running the app and Notebook**:
+**Running the app**:
 
-You can run the demo in ```demo_llama3.2.ipynb``` and app in ```app_llama3.2.py``` using command ``` streamlit run app_llama3.2.py ```
+To use deep-seek-rq use command ``` streamlit run app_deep_seek.py ```, for llama 3.2 use command ``` streamlit run app_llama3.2.py ```
 
 ---
 
