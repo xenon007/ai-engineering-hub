@@ -263,4 +263,4 @@ if st.session_state.response:
 
 # Footer
 st.markdown("---")
-st.markdown("Built with CrewAI, BrightData and Streamlit")
+st.markdown("Built with CrewAI, Bright Data and Streamlit")
