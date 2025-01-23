@@ -1,7 +1,7 @@
 # YouTube Trend Analysis with CrewAI and BrightData
 
 This project implements a YouTube Trend Analysis with CrewAI and BrightData.
-- BrightData is used to scrape YouTube videos.
+- [Bright Data](https://brdta.com/dailydoseofds) is used to scrape YouTube videos.
 - CrewAI is used to analyze the transcripts of the videos and generate a summary.
 - Streamlit is used to create a web interface for the project.
 
@@ -10,7 +10,7 @@ This project implements a YouTube Trend Analysis with CrewAI and BrightData.
 ## Setup and installations
 
 **Get BrightData API Key**:
-- Go to [BrightData](https://brightdata.com/) and sign up for an account.
+- Go to [Bright Data](https://brdta.com/dailydoseofds) and sign up for an account.
 - Once you have an account, go to the API Key page and copy your API key.
 - Paste your API key by creating a `.env` file as follows:
 
