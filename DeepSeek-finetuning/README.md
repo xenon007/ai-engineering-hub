@@ -1,7 +1,6 @@
 # DeepSeek Finetuning
 
-This project implements a DeepSeek Finetuning using Unsloth and Ollama
-
+This project fine-tunes DeepSeek (distilled Llama variant) using Unsloth and Ollama.
 
 ---
 ## Setup and installations
