@@ -1,4 +1,5 @@
 import re
+import base64
 import streamlit as st
 from ollama import chat
 
@@ -72,6 +73,15 @@ def process_response_phase(stream):
         response_placeholder.markdown(response_content)
     return response_content
 
+@st.cache_resource
+def get_chat_model():
+    """Get a cached instance of the chat model."""
+    return lambda messages: chat(
+        model="deepseek-r1",
+        messages=messages,
+        stream=True,
+    )
+
 def handle_user_input():
     """Handle new user input and generate assistant response."""
     if user_input := st.chat_input("Type your message here..."):
@@ -81,11 +91,8 @@ def handle_user_input():
             st.markdown(user_input)
         
         with st.chat_message("assistant"):
-            stream = chat(
-                model="deepseek-r1",
-                messages=st.session_state["messages"],
-                stream=True,
-            )
+            chat_model = get_chat_model()
+            stream = chat_model(st.session_state["messages"])
             
             thinking_content = process_thinking_phase(stream)
             response_content = process_response_phase(stream)
@@ -97,8 +104,10 @@ def handle_user_input():
 
 def main():
     """Main function to handle the chat interface and streaming responses."""
-    st.markdown("## Ollama Streaming Chat")
-    st.write("A minimal example of how to stream responses from the Llama3.2 model using the Ollama library and Streamlit.")
+    st.markdown("""
+    # Mini ChatGPT powered by <img src="data:image/png;base64,{}" width="170" style="vertical-align: -3px;">
+""".format(base64.b64encode(open("assets/deep-seek.png", "rb").read()).decode()), unsafe_allow_html=True)
+    st.markdown("<h4 style='text-align: center;'>With thinking UI! 💡</h4>", unsafe_allow_html=True)
     
     display_chat_history()
     handle_user_input()
