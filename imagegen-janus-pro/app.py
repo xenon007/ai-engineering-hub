@@ -207,10 +207,10 @@ def main():
         
         # Multimodal Understanding Parameters
         with st.expander("Multimodal Understanding Settings", expanded=True):
-            uploaded_image = st.file_uploader("Upload an image", type=["png", "jpg", "jpeg"])
             seed = st.number_input("Seed", min_value=0, value=42, step=1)
             top_p = st.slider("top_p", min_value=0.0, max_value=1.0, value=0.95, step=0.05)
             temperature = st.slider("temperature", min_value=0.0, max_value=1.0, value=0.1, step=0.05)
+            uploaded_image = st.file_uploader("Upload an image", type=["png", "jpg", "jpeg"])
         
         # Text-to-Image Parameters
         with st.expander("Text-to-Image Settings", expanded=True):
