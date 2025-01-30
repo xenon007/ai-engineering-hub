@@ -201,8 +201,11 @@ def main():
     # Create two tabs: one for Multimodal Understanding, one for Text-to-Image
     tab1, tab2 = st.tabs(["Multimodal Understanding", "Text-to-Image Generation"])
 
-    # Sidebar for parameters
+    # Sidebar for image upload and parameters
     with st.sidebar:
+        st.header("Upload Image")
+        uploaded_image = st.file_uploader("Upload an image", type=["png", "jpg", "jpeg"])
+        
         st.header("Parameters")
         
         # Multimodal Understanding Parameters
@@ -210,7 +213,6 @@ def main():
             seed = st.number_input("Seed", min_value=0, value=42, step=1)
             top_p = st.slider("top_p", min_value=0.0, max_value=1.0, value=0.95, step=0.05)
             temperature = st.slider("temperature", min_value=0.0, max_value=1.0, value=0.1, step=0.05)
-            uploaded_image = st.file_uploader("Upload an image", type=["png", "jpg", "jpeg"])
         
         # Text-to-Image Parameters
         with st.expander("Text-to-Image Settings", expanded=True):
@@ -228,13 +230,14 @@ def main():
             if not uploaded_image:
                 st.warning("Please upload an image before chatting.")
             else:
-                answer = multimodal_understanding(
-                    image=uploaded_image,
-                    question=question,
-                    seed=seed,
-                    top_p=top_p,
-                    temperature=temperature
-                )
+                with st.spinner('Analyzing your image...'):
+                    answer = multimodal_understanding(
+                        image=uploaded_image,
+                        question=question,
+                        seed=seed,
+                        top_p=top_p,
+                        temperature=temperature
+                    )
                 st.text_area("Response", value=answer, height=150)
 
     with tab2:
@@ -242,7 +245,8 @@ def main():
         prompt = st.text_area("Prompt", value="A cute baby fox in autumn leaves, digital art, cinematic lighting...")
 
         if st.button("Generate Images"):
-            images = generate_image(prompt=prompt, seed=seed_t2i, guidance=cfg_weight)
+            with st.spinner('Generating images... This may take a minute.'):
+                images = generate_image(prompt=prompt, seed=seed_t2i, guidance=cfg_weight)
             st.write("Generated Images:")
             cols = st.columns(2)
             idx = 0
@@ -255,9 +259,9 @@ def main():
 
         # Tips / example prompts
         with st.expander("Example Prompts"):
-            st.write("1. Master shifu racoon wearing drip attire as a street gangster.")
-            st.write("2. A cute and adorable baby fox with big brown eyes, autumn leaves in the background, fluffy, photorealistic, cinematic, natural colors.")
-            st.write("3. Intricate eye design with swirl patterns, a stone-like structure above the eye, baroque decor, surrealistic elements, timeless look.")
+            st.write("1. A cyberpunk samurai meditating in a neon-lit Japanese garden, cherry blossoms falling.")
+            st.write("2. A magical library with floating books, ethereal lighting, dust particles in the air, hyperrealistic detail.")
+            st.write("3. A steampunk-inspired coffee machine with brass gears and copper pipes, Victorian era style, morning light.")
 
 
 if __name__ == "__main__":
