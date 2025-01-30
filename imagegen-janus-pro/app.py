@@ -201,18 +201,28 @@ def main():
     # Create two tabs: one for Multimodal Understanding, one for Text-to-Image
     tab1, tab2 = st.tabs(["Multimodal Understanding", "Text-to-Image Generation"])
 
+    # Sidebar for parameters
+    with st.sidebar:
+        st.header("Parameters")
+        
+        # Multimodal Understanding Parameters
+        with st.expander("Multimodal Understanding Settings", expanded=True):
+            uploaded_image = st.file_uploader("Upload an image", type=["png", "jpg", "jpeg"])
+            seed = st.number_input("Seed", min_value=0, value=42, step=1)
+            top_p = st.slider("top_p", min_value=0.0, max_value=1.0, value=0.95, step=0.05)
+            temperature = st.slider("temperature", min_value=0.0, max_value=1.0, value=0.1, step=0.05)
+        
+        # Text-to-Image Parameters
+        with st.expander("Text-to-Image Settings", expanded=True):
+            seed_t2i = st.number_input("Seed (Optional)", min_value=0, value=12345, step=1)
+            cfg_weight = st.slider("CFG Weight", min_value=1.0, max_value=10.0, value=5.0, step=0.5)
+
+    # Main content area
     with tab1:
         st.subheader("Ask a question about your image")
-        uploaded_image = st.file_uploader("Upload an image", type=["png", "jpg", "jpeg"])
+        if uploaded_image:
+            st.image(uploaded_image, use_column_width=True)
         question = st.text_input("Question", value="Explain this meme...")
-        
-        col1, col2 = st.columns(2)
-        with col1:
-            seed = st.number_input("Seed", min_value=0, value=42, step=1)
-        with col2:
-            top_p = st.slider("top_p", min_value=0.0, max_value=1.0, value=0.95, step=0.05)
-        
-        temperature = st.slider("temperature", min_value=0.0, max_value=1.0, value=0.1, step=0.05)
 
         if st.button("Chat"):
             if not uploaded_image:
@@ -230,8 +240,6 @@ def main():
     with tab2:
         st.subheader("Generate Images From Text")
         prompt = st.text_area("Prompt", value="A cute baby fox in autumn leaves, digital art, cinematic lighting...")
-        seed_t2i = st.number_input("Seed (Optional)", min_value=0, value=12345, step=1)
-        cfg_weight = st.slider("CFG Weight", min_value=1.0, max_value=10.0, value=5.0, step=0.5)
 
         if st.button("Generate Images"):
             images = generate_image(prompt=prompt, seed=seed_t2i, guidance=cfg_weight)
