@@ -1,7 +1,7 @@
 
 # Agentic RAG using CrewAI
 
-This project leverages CrewAI to build an Agentic RAG that can search through your docs and fallbacks to web search incase it don't find the answer in the docs, have option to use either of deep-seek-r1 or llama 3.2 that runs locally. More details un Running the app section below!
+This project leverages CrewAI to build an Agentic RAG that can search through your docs and fallbacks to web search in case it doesn't find the answer in the docs, have option to use either of deep-seek-r1 or llama 3.2 that runs locally. More details un Running the app section below!
 
 Before that make sure you Grab your FireCrawl API keys to search web.
 
