@@ -1,6 +1,6 @@
 # Trustworthy RAG over complex documents using TLM and LlamaParse
 
-The project uses a trustworthy language model from Cleanlab (TLM) that prvides a confidence score and reasoning on the generated output. It also uses LlamaParse to parse complex documents into LLM ready clean markdown format.
+The project uses a trustworthy language model from Cleanlab (TLM) that prvides a confidence score and reasoning on the generated output. It also uses [LlamaParse](https://docs.cloud.llamaindex.ai/llamacloud/getting_started/api_key) to parse complex documents into LLM ready clean markdown format.
 
 Before you start, grab your API keys for LlamaParse and TLM
 
