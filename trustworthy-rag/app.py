@@ -186,23 +186,24 @@ if prompt := st.chat_input("What's up?"):
                     box-shadow: 0 0 5px rgba(0,255,255,0.2);
                 }
             }
-            .trustworthy-container {
-                padding: 20px;
+            .score-container {
+                padding: 10px 20px;
                 border-radius: 10px;
                 background: rgba(255,255,255,0.1);
                 animation: glow 2s ease-in-out infinite;
                 margin: 10px 0;
+                display: inline-block;
             }
             </style>
             """, unsafe_allow_html=True)
         
-        # Display trustworthiness information with animation
-        st.markdown("""
-            <div class="trustworthy-container">
-                <p><strong>Trustworthiness Score:</strong> {:.2f}</p>
-                <p><strong>Reasoning:</strong> {}</p>
+        # Display trustworthiness score with animation and reasoning separately
+        st.markdown(f"""
+            <div class="score-container">
+                <strong>Trustworthiness Score:</strong> {trustworthiness_score:.2f}
             </div>
-            """.format(trustworthiness_score, reasoning), unsafe_allow_html=True)
+            """, unsafe_allow_html=True)
+        st.markdown(f"**Reasoning:** {reasoning}")
 
     # Add assistant response to chat history
     st.session_state.messages.append({"role": "assistant", "content": full_response})
