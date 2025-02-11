@@ -100,21 +100,21 @@ with st.sidebar:
                     query_engine = index.as_query_engine()
                     event_handler = setup_trustworthiness_handler()
                     st.session_state.event_handler = event_handler
-                    # # ====== Customise prompt template ======
-                    # qa_prompt_tmpl_str = (
-                    # "Context information is below.\n"
-                    # "---------------------\n"
-                    # "{context_str}\n"
-                    # "---------------------\n"
-                    # "Given the context information above I want you to think step by step to answer the query in a crisp manner, incase case you don't know the answer say 'I don't know!'.\n"
-                    # "Query: {query_str}\n"
-                    # "Answer: "
-                    # )
-                    # qa_prompt_tmpl = PromptTemplate(qa_prompt_tmpl_str)
+                    # ====== Customise prompt template ======
+                    qa_prompt_tmpl_str = (
+                    "Context information is below.\n"
+                    "---------------------\n"
+                    "{context_str}\n"
+                    "---------------------\n"
+                    "Given the context information above I want you to think step by step to answer the query in a crisp manner, incase case you don't know the answer say 'I don't know!'.\n"
+                    "Query: {query_str}\n"
+                    "Answer: "
+                    )
+                    qa_prompt_tmpl = PromptTemplate(qa_prompt_tmpl_str)
 
-                    # query_engine.update_prompts(
-                    #     {"response_synthesizer:text_qa_template": qa_prompt_tmpl}
-                    # )
+                    query_engine.update_prompts(
+                        {"response_synthesizer:text_qa_template": qa_prompt_tmpl}
+                    )
                     
                     st.session_state.file_cache[file_key] = query_engine
                 else:
@@ -172,10 +172,37 @@ if prompt := st.chat_input("What's up?"):
         
         message_placeholder.markdown(full_response)
         
-        # Display trustworthiness information
-        st.markdown("---")
-        st.markdown(f"**Trustworthiness Score:** {trustworthiness_score:.2f}")
-        st.markdown(f"**Reasoning:** {reasoning}")
+        # Add custom CSS for the glow animation
+        st.markdown("""
+            <style>
+            @keyframes glow {
+                0% {
+                    box-shadow: 0 0 5px rgba(0,255,255,0.2);
+                }
+                50% {
+                    box-shadow: 0 0 20px rgba(0,255,255,0.6);
+                }
+                100% {
+                    box-shadow: 0 0 5px rgba(0,255,255,0.2);
+                }
+            }
+            .trustworthy-container {
+                padding: 20px;
+                border-radius: 10px;
+                background: rgba(255,255,255,0.1);
+                animation: glow 2s ease-in-out infinite;
+                margin: 10px 0;
+            }
+            </style>
+            """, unsafe_allow_html=True)
+        
+        # Display trustworthiness information with animation
+        st.markdown("""
+            <div class="trustworthy-container">
+                <p><strong>Trustworthiness Score:</strong> {:.2f}</p>
+                <p><strong>Reasoning:</strong> {}</p>
+            </div>
+            """.format(trustworthiness_score, reasoning), unsafe_allow_html=True)
 
     # Add assistant response to chat history
     st.session_state.messages.append({"role": "assistant", "content": full_response})
