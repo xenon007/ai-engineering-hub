@@ -10,8 +10,9 @@ Before you start, grab your API keys for LlamaParse and TLM
 ---
 ## Setup and installations
 
-- Paste your API keys by creating a `.env` file as shown below:
-- Refere .env.example file
+**Setup Environment**:
+- Paste your API keys by creating a `.env`
+- Refer `.env.example` file
 
 
 **Install Dependencies**:
@@ -19,9 +20,10 @@ Before you start, grab your API keys for LlamaParse and TLM
    ```bash
    pip install llama-index-llms-cleanlab llama-index llama-index-embeddings-huggingface
    ```
-
----
-
+**Running the app**:
+```bash
+   streamlit run app.py
+```
 
 ---
 
