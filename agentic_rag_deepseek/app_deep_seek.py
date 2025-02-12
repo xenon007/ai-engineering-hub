@@ -6,7 +6,7 @@ import base64
 import time
 
 from crewai import Agent, Crew, Process, Task, LLM
-from src.agentic_rag.tools.custom_tool import FireCrawlWebSearchTool
+from crewai_tools import SerperDevTool
 from src.agentic_rag.tools.custom_tool import DocumentSearchTool
 
 @st.cache_resource
@@ -22,7 +22,7 @@ def load_llm():
 # ===========================
 def create_agents_and_tasks(pdf_tool):
     """Creates a Crew with the given PDF tool (if any) and a web search tool."""
-    web_search_tool = FireCrawlWebSearchTool()
+    web_search_tool = SerperDevTool()
 
     retriever_agent = Agent(
         role="Retrieve relevant information to answer the user query: {query}",
@@ -39,7 +39,7 @@ def create_agents_and_tasks(pdf_tool):
         ),
         verbose=True,
         tools=[t for t in [pdf_tool, web_search_tool] if t],
-        llm=load_llm()
+        # llm=load_llm()
     )
 
     response_synthesizer_agent = Agent(
@@ -55,7 +55,7 @@ def create_agents_and_tasks(pdf_tool):
             "complex information into clear and concise responses."
         ),
         verbose=True,
-        llm=load_llm()
+        # llm=load_llm()
     )
 
     retrieval_task = Task(
@@ -136,7 +136,12 @@ with st.sidebar:
                     f.write(uploaded_file.getvalue())
 
                 with st.spinner("Indexing PDF... Please wait..."):
+                    # st.session_state.pdf_tool = DocumentSearchTool(file_path="/Users/akshay/Eigen/ai-engineering-hub/agentic_rag_deepseek/knowledge/dspy.pdf")
                     st.session_state.pdf_tool = DocumentSearchTool(file_path=temp_file_path)
+                    # Test search
+                    # result = st.session_state.pdf_tool._run("What is the purpose of DSpy?")
+                    # st.info("Initial Test Search Results:", icon="🔍")
+                    # st.write(result)
             
             st.success("PDF indexed! Ready to chat.")
 
@@ -149,8 +154,8 @@ with st.sidebar:
 #   Main Chat Interface
 # ===========================
 st.markdown("""
-    # Agentic RAG powered by <img src="data:image/png;base64,{}" width="170" style="vertical-align: -3px;">
-""".format(base64.b64encode(open("assets/deep-seek.png", "rb").read()).decode()), unsafe_allow_html=True)
+    # Agentic RAG over complex real-world documents powered by <img src="data:image/png;base64,{}" width="220" style="vertical-align: -12px;">
+""".format(base64.b64encode(open("assets/groundx.png", "rb").read()).decode()), unsafe_allow_html=True)
 
 # Render existing conversation
 for message in st.session_state.messages:
