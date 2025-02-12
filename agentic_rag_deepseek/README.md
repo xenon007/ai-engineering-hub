@@ -10,6 +10,9 @@ Grab your API keys's here.
 - [GroundX API keys](https://docs.eyelevel.ai/documentation/fundamentals/quickstart#step-1-getting-your-api-key)
 - [SERPER API keys](https://serper.dev/)
 
+### Watch this tutorial on YouTube
+[![Watch this tutorial on YouTube](https://github.com/patchy631/ai-engineering-hub/blob/main/agentic_rag_deepseek/assets/thumbnail.png)](https://www.youtube.com/watch?v=79xvgj4wvHQ)
+
 ---
 ## Setup and installations
 
