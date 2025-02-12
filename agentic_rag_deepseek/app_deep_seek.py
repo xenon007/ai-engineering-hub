@@ -39,7 +39,7 @@ def create_agents_and_tasks(pdf_tool):
         ),
         verbose=True,
         tools=[t for t in [pdf_tool, web_search_tool] if t],
-        # llm=load_llm()
+        llm=load_llm()
     )
 
     response_synthesizer_agent = Agent(
@@ -55,7 +55,7 @@ def create_agents_and_tasks(pdf_tool):
             "complex information into clear and concise responses."
         ),
         verbose=True,
-        # llm=load_llm()
+        llm=load_llm()
     )
 
     retrieval_task = Task(
