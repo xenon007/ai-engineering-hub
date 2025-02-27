@@ -10,8 +10,8 @@ from dotenv import load_dotenv
 # Page configuration
 st.set_page_config(page_title="✈️ FlightFinder Pro", layout="wide")
 
-# Title and subtitle
-st.title("✈️ FlightFinder Pro")
+# Title and subtitle with custom HTML for blue color
+st.markdown("<h1 style='color: #0066cc;'>✈️ FlightFinder Pro</h1>", unsafe_allow_html=True)
 st.subheader("Powered by Browserbase and CrewAI")
 
 # Sidebar for API key input
