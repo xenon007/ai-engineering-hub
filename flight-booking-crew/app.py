@@ -8,10 +8,10 @@ from kayak import kayak
 from dotenv import load_dotenv
 
 # Page configuration
-st.set_page_config(page_title="FlightFinder Pro", layout="wide")
+st.set_page_config(page_title="✈️ FlightFinder Pro", layout="wide")
 
 # Title and subtitle
-st.title("FlightFinder Pro")
+st.title("✈️ FlightFinder Pro")
 st.subheader("Powered by Browserbase and CrewAI")
 
 # Sidebar for API key input
