@@ -15,7 +15,7 @@ A demo is shown below:
 
 **Setup AssemblyAI**:
 
-Get an API key from [AssemblyAI](https://assemblyai.com/?utm_source=dailydose&utm_medium=newsletter_sponsor&utm_campaign=tutorial&utm_content=rag_demo) and set it in the `.env` file as follows:
+Get an API key from [AssemblyAI](http://bit.ly/4bGBdux) and set it in the `.env` file as follows:
 
 ```bash
 ASSEMBLYAI_API_KEY=<YOUR_API_KEY> 
@@ -28,6 +28,8 @@ Get an API key from [SambaNova](https://sambanova.ai/) and set it in the `.env` 
 ```bash
 SAMBANOVA_API_KEY=<YOUR_SAMBANOVA_API_KEY> 
 ```
+
+Note: Instead of SambaNova, you can also use Ollama.
 
 **Setup Qdrant VectorDB**
    ```bash
