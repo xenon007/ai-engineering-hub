@@ -22,6 +22,8 @@ from llama_index.vector_stores.qdrant import QdrantVectorStore
 from llama_index.embeddings.fastembed import FastEmbedEmbedding
 from llama_index.core import Settings
 from workflow import CorrectiveRAGWorkflow
+import io
+from contextlib import redirect_stdout
 
 # Set up page configuration
 st.set_page_config(page_title="Corrective RAG Demo", layout="wide")
@@ -36,6 +38,9 @@ if "workflow" not in st.session_state:
     
 if "messages" not in st.session_state:
     st.session_state.messages = []
+    
+if "workflow_logs" not in st.session_state:
+    st.session_state.workflow_logs = []
 
 session_id = st.session_state.id
 
@@ -85,7 +90,17 @@ def initialize_workflow(file_path):
 
 # Function to run the async workflow
 async def run_workflow(query):
-    return await st.session_state.workflow.run(query_str=query)
+    # Capture stdout to get the workflow logs
+    f = io.StringIO()
+    with redirect_stdout(f):
+        result = await st.session_state.workflow.run(query_str=query)
+    
+    # Get the captured logs and store them
+    logs = f.getvalue()
+    if logs:
+        st.session_state.workflow_logs.append(logs)
+    
+    return result
 
 # Sidebar for document upload
 with st.sidebar:
@@ -131,11 +146,20 @@ with col2:
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
+        
+    # If this is a user message and there are logs associated with it
+    if message["role"] == "user" and "log_index" in message:
+        log_index = message["log_index"]
+        if log_index < len(st.session_state.workflow_logs):
+            with st.expander("View Workflow Execution Logs", expanded=False):
+                st.code(st.session_state.workflow_logs[log_index], language="text")
 
 # Accept user input
 if prompt := st.chat_input("Ask a question about your documents..."):
-    # Add user message to chat history
-    st.session_state.messages.append({"role": "user", "content": prompt})
+    # Add user message to chat history with placeholder for log index
+    log_index = len(st.session_state.workflow_logs)
+    st.session_state.messages.append({"role": "user", "content": prompt, "log_index": log_index})
+    
     # Display user message in chat message container
     with st.chat_message("user"):
         st.markdown(prompt)
@@ -148,6 +172,12 @@ if prompt := st.chat_input("Ask a question about your documents..."):
             
             # Run the async workflow
             result = asyncio.run(run_workflow(prompt))
+            
+            # Display the workflow logs in an expandable section
+            if log_index < len(st.session_state.workflow_logs):
+                with st.expander("View Workflow Execution Logs", expanded=False):
+                    st.code(st.session_state.workflow_logs[log_index], language="text")
+            
             result = result.response
             
             # Stream the response word by word
