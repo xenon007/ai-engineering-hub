@@ -10,6 +10,10 @@ import os
 import asyncio
 import streamlit as st
 import qdrant_client
+import base64
+import gc
+import tempfile
+import uuid
 from IPython.display import Markdown, display
 from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
 from llama_index.core import StorageContext
@@ -20,16 +24,41 @@ from workflow import CorrectiveRAGWorkflow
 
 # Set up page configuration
 st.set_page_config(page_title="Corrective RAG Demo", layout="wide")
-st.title("Corrective RAG Workflow Demo")
 
-# Initialize session state to store the workflow
+# Initialize session state variables
+if "id" not in st.session_state:
+    st.session_state.id = uuid.uuid4()
+    st.session_state.file_cache = {}
+    
 if "workflow" not in st.session_state:
     st.session_state.workflow = None
+    
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
-# Function to initialize the workflow
-def initialize_workflow():
+session_id = st.session_state.id
+
+def reset_chat():
+    st.session_state.messages = []
+    gc.collect()
+
+def display_pdf(file):
+    st.markdown("### PDF Preview")
+    base64_pdf = base64.b64encode(file.read()).decode("utf-8")
+
+    # Embedding PDF in HTML
+    pdf_display = f"""<iframe src="data:application/pdf;base64,{base64_pdf}" width="400" height="100%" type="application/pdf"
+                        style="height:100vh; width:100%"
+                    >
+                    </iframe>"""
+
+    # Displaying File
+    st.markdown(pdf_display, unsafe_allow_html=True)
+
+# Function to initialize the workflow with uploaded documents
+def initialize_workflow(file_path):
     with st.spinner("Loading documents and initializing the workflow..."):
-        documents = SimpleDirectoryReader("./docs").load_data()
+        documents = SimpleDirectoryReader(file_path).load_data()
         
         client = qdrant_client.QdrantClient(
             host="localhost",
@@ -51,45 +80,78 @@ def initialize_workflow():
         )
         
         st.session_state.workflow = workflow
-        st.success("Workflow initialized successfully!")
+        return workflow
 
 # Function to run the async workflow
 async def run_workflow(query):
     return await st.session_state.workflow.run(query_str=query)
 
-# Initialize the workflow if not already done
-if st.session_state.workflow is None:
-    initialize_workflow()
+# Sidebar for document upload
+with st.sidebar:
+    st.header("Add your documents!")
+    
+    uploaded_file = st.file_uploader("Choose your `.pdf` file", type="pdf")
 
-# Create the query input
-query = st.text_input("Enter your question:", placeholder="How was Llama2 pretrained?")
+    if uploaded_file:
+        try:
+            with tempfile.TemporaryDirectory() as temp_dir:
+                file_path = os.path.join(temp_dir, uploaded_file.name)
+                
+                with open(file_path, "wb") as f:
+                    f.write(uploaded_file.getvalue())
+                
+                file_key = f"{session_id}-{uploaded_file.name}"
+                st.write("Indexing your document...")
 
-# Run button
-if st.button("Run Query") and query:
-    if st.session_state.workflow:
-        with st.spinner("Processing your query..."):
-            # Run the async workflow in a way that works with Streamlit
-            result = asyncio.run(run_workflow(query))
-            st.markdown(result)
-    else:
-        st.error("Workflow not initialized. Please refresh the page.")
+                if file_key not in st.session_state.get('file_cache', {}):
+                    # Initialize workflow with the uploaded document
+                    workflow = initialize_workflow(temp_dir)
+                    st.session_state.file_cache[file_key] = workflow
+                else:
+                    st.session_state.workflow = st.session_state.file_cache[file_key]
 
-# Add some example queries
-st.sidebar.header("Example Queries")
-example_queries = [
-    "How was Llama2 pretrained?",
-    "What are the key components of the architecture?",
-    "Explain the training process for the model."
-]
+                # Inform the user that the file is processed and Display the PDF uploaded
+                st.success("Ready to Chat!")
+                display_pdf(uploaded_file)
+        except Exception as e:
+            st.error(f"An error occurred: {e}")
+            st.stop()
 
-for example in example_queries:
-    if st.sidebar.button(example):
-        # This will set the query in the text input
-        st.session_state.query = example
-        st.rerun()
+# Main chat interface
+col1, col2 = st.columns([6, 1])
 
-# If there's a query in the session state, use it
-if "query" in st.session_state:
-    query = st.session_state.query
-    # Clear it so it doesn't keep running
-    del st.session_state.query
+with col1:
+    st.header("Corrective RAG Chat")
+
+with col2:
+    st.button("Clear ↺", on_click=reset_chat)
+
+# Display chat messages from history on app rerun
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
+
+# Accept user input
+if prompt := st.chat_input("Ask a question about your documents..."):
+    # Add user message to chat history
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    # Display user message in chat message container
+    with st.chat_message("user"):
+        st.markdown(prompt)
+
+    # Display assistant response in chat message container
+    with st.chat_message("assistant"):
+        if st.session_state.workflow:
+            message_placeholder = st.empty()
+            full_response = ""
+            
+            # Run the async workflow
+            result = asyncio.run(run_workflow(prompt))
+            message_placeholder.markdown(result)
+            full_response = result
+        else:
+            full_response = "Please upload a document first to initialize the workflow."
+            st.markdown(full_response)
+
+    # Add assistant response to chat history
+    st.session_state.messages.append({"role": "assistant", "content": full_response})
