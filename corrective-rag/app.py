@@ -14,6 +14,7 @@ import base64
 import gc
 import tempfile
 import uuid
+import time
 from IPython.display import Markdown, display
 from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
 from llama_index.core import StorageContext
@@ -147,8 +148,15 @@ if prompt := st.chat_input("Ask a question about your documents..."):
             
             # Run the async workflow
             result = asyncio.run(run_workflow(prompt))
-            message_placeholder.markdown(result)
-            full_response = result
+            result = result.response
+            # Stream the response word by word
+            words = result.split()
+            for i, word in enumerate(words):
+                full_response += word + " "
+                message_placeholder.markdown(full_response)
+                # Add a delay between words
+                if i < len(words) - 1:  # Don't delay after the last word
+                    time.sleep(0.1)
         else:
             full_response = "Please upload a document first to initialize the workflow."
             st.markdown(full_response)
