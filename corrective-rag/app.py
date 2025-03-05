@@ -149,14 +149,18 @@ if prompt := st.chat_input("Ask a question about your documents..."):
             # Run the async workflow
             result = asyncio.run(run_workflow(prompt))
             result = result.response
+            
             # Stream the response word by word
             words = result.split()
             for i, word in enumerate(words):
                 full_response += word + " "
-                message_placeholder.markdown(full_response)
+                message_placeholder.markdown(full_response + "▌")
                 # Add a delay between words
                 if i < len(words) - 1:  # Don't delay after the last word
                     time.sleep(0.1)
+                    
+            # Display final response without cursor
+            message_placeholder.markdown(full_response)
         else:
             full_response = "Please upload a document first to initialize the workflow."
             st.markdown(full_response)
