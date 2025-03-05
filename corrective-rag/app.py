@@ -143,12 +143,13 @@ with col2:
     st.button("Clear ↺", on_click=reset_chat)
 
 # Display chat messages from history on app rerun
-for message in st.session_state.messages:
+for i, message in enumerate(st.session_state.messages):
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
-        
+    
     # If this is a user message and there are logs associated with it
-    if message["role"] == "user" and "log_index" in message:
+    # Display logs AFTER the user message but BEFORE the next assistant message
+    if message["role"] == "user" and "log_index" in message and i < len(st.session_state.messages) - 1:
         log_index = message["log_index"]
         if log_index < len(st.session_state.workflow_logs):
             with st.expander("View Workflow Execution Logs", expanded=False):
@@ -164,17 +165,18 @@ if prompt := st.chat_input("Ask a question about your documents..."):
     with st.chat_message("user"):
         st.markdown(prompt)
 
+    if st.session_state.workflow:
+        # Run the async workflow
+        result = asyncio.run(run_workflow(prompt))
+        
+        # Display the workflow logs in an expandable section OUTSIDE and BEFORE the assistant chat bubble
+        if log_index < len(st.session_state.workflow_logs):
+            with st.expander("View Workflow Execution Logs", expanded=False):
+                st.code(st.session_state.workflow_logs[log_index], language="text")
+    
     # Display assistant response in chat message container
     with st.chat_message("assistant"):
         if st.session_state.workflow:
-            # Run the async workflow
-            result = asyncio.run(run_workflow(prompt))
-            
-            # Display the workflow logs in an expandable section BEFORE the response
-            if log_index < len(st.session_state.workflow_logs):
-                with st.expander("View Workflow Execution Logs", expanded=False):
-                    st.code(st.session_state.workflow_logs[log_index], language="text")
-            
             message_placeholder = st.empty()
             full_response = ""
             
