@@ -167,16 +167,16 @@ if prompt := st.chat_input("Ask a question about your documents..."):
     # Display assistant response in chat message container
     with st.chat_message("assistant"):
         if st.session_state.workflow:
-            message_placeholder = st.empty()
-            full_response = ""
-            
             # Run the async workflow
             result = asyncio.run(run_workflow(prompt))
             
-            # Display the workflow logs in an expandable section
+            # Display the workflow logs in an expandable section BEFORE the response
             if log_index < len(st.session_state.workflow_logs):
                 with st.expander("View Workflow Execution Logs", expanded=False):
                     st.code(st.session_state.workflow_logs[log_index], language="text")
+            
+            message_placeholder = st.empty()
+            full_response = ""
             
             result = result.response
             
