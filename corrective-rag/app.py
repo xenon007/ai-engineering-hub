@@ -104,6 +104,25 @@ async def run_workflow(query):
 
 # Sidebar for document upload
 with st.sidebar:
+    # Add Linkup logo and Configuration header in the same line
+    col1, col2 = st.columns([1, 3])
+    with col1:
+        # Add vertical space to align with header
+        st.write("")
+        st.image("./assets/linkup.png", width=65)
+    with col2:
+        st.header("Linkup Configuration")
+    
+    # Add hyperlink to get API key
+    st.markdown("[Get your API key](https://app.linkup.so/sign-up)", unsafe_allow_html=True)
+    
+    linkup_api_key = st.text_input("Enter your Linkup API Key", type="password")
+    
+    # Store API key as environment variable
+    if linkup_api_key:
+        os.environ["LINKUP_API_KEY"] = linkup_api_key
+        st.success("API Key stored successfully!")
+    
     st.header("Add your documents!")
     
     uploaded_file = st.file_uploader("Choose your `.pdf` file", type="pdf")
