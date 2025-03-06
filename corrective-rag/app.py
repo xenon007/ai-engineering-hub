@@ -18,6 +18,7 @@ import time
 from IPython.display import Markdown, display
 from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
 from llama_index.core import StorageContext
+from llama_index.llms.ollama import Ollama
 from llama_index.vector_stores.qdrant import QdrantVectorStore
 from llama_index.embeddings.fastembed import FastEmbedEmbedding
 from llama_index.core import Settings
@@ -43,6 +44,11 @@ if "workflow_logs" not in st.session_state:
     st.session_state.workflow_logs = []
 
 session_id = st.session_state.id
+
+@st.cache_resource
+def load_llm():
+    llm = Ollama(model="deepseek-r1:7b", request_timeout=120.0)
+    return llm
 
 def reset_chat():
     st.session_state.messages = []
@@ -72,6 +78,8 @@ def initialize_workflow(file_path):
         )
         
         vector_store = QdrantVectorStore(client=client, collection_name="test")
+        embed_model = FastEmbedEmbedding(model_name="BAAI/bge-large-en-v1.5")
+        Settings.embed_model = embed_model
         storage_context = StorageContext.from_defaults(vector_store=vector_store)
         index = VectorStoreIndex.from_documents(
             documents,
@@ -82,7 +90,8 @@ def initialize_workflow(file_path):
             index=index, 
             linkup_api_key=os.environ["LINKUP_API_KEY"], 
             verbose=True, 
-            timeout=60
+            timeout=60,
+            llm=load_llm()
         )
         
         st.session_state.workflow = workflow
@@ -112,6 +121,7 @@ with st.sidebar:
         st.image("./assets/linkup.png", width=65)
     with col2:
         st.header("Linkup Configuration")
+        st.write("Deep Web Search")
     
     # Add hyperlink to get API key
     st.markdown("[Get your API key](https://app.linkup.so/sign-up)", unsafe_allow_html=True)
@@ -156,7 +166,12 @@ with st.sidebar:
 col1, col2 = st.columns([6, 1])
 
 with col1:
-    st.header("Corrective RAG Chat")
+    # Removed the original header
+    st.markdown("<h2 style='color: #0066cc;'>⚙️ Corrective RAG agentic workflow</h2>", unsafe_allow_html=True)
+    # Replace text with image and subtitle styling
+    st.markdown("<div style='display: flex; align-items: center; gap: 10px;'><span style='font-size: 28px; color: #666;'>Powered by LlamaIndex</span><img src='data:image/png;base64,{}' width='50'></div>".format(
+        base64.b64encode(open("./assets/llamaindex.png", "rb").read()).decode()
+    ), unsafe_allow_html=True)
 
 with col2:
     st.button("Clear ↺", on_click=reset_chat)
