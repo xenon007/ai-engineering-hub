@@ -15,7 +15,7 @@ This project leverages Gemma-3 vision capabilities and Streamlit to create a 100
 **Install Dependencies**:
    Ensure you have Python 3.11 or later installed.
    ```bash
-   pip install streamlit ollama Pillow
+   pip install streamlit ollama pillow
    ```
 
 ---
