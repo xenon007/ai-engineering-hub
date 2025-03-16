@@ -18,13 +18,6 @@ This project leverages Gemma-3 vision capabilities and Streamlit to create a 100
    pip install streamlit ollama Pillow
    ```
 
-## Features
-
-- **Text Extraction**: Extract and structure text content from images
-- **Object Detection**: Identify objects in images with their locations and bounding boxes
-- **Local Processing**: 100% locally running application with no data sent to external servers
-- **Interactive UI**: Easy-to-use interface with mode switching and image preview
-
 ---
 
 ## 📬 Stay Updated with Our Newsletter!
