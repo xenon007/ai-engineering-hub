@@ -7,7 +7,7 @@ from livekit.agents.llm import (
     ChatContext,
 )
 from livekit.agents.pipeline import VoicePipelineAgent
-from livekit.plugins import deepgram, cartesia, openai, silero, llama_index, assemblyai
+from livekit.plugins import cartesia, silero, llama_index, assemblyai
 
 load_dotenv()
 
@@ -49,7 +49,6 @@ def prewarm(proc: JobProcess):
 
 
 async def entrypoint(ctx: JobContext):
-
     chat_context = ChatContext().append(
         role="system",
         text=(
@@ -59,20 +58,17 @@ async def entrypoint(ctx: JobContext):
     )
     
     chat_engine = index.as_chat_engine(chat_mode=ChatMode.CONTEXT)
-
-
-
     logger.info(f"Connecting to room {ctx.room.name}")
+   
     await ctx.connect(auto_subscribe=AutoSubscribe.AUDIO_ONLY)
-
+   
     participant = await ctx.wait_for_participant()
     logger.info(f"Starting voice assistant for participant {participant.identity}")
-
+    
+    stt_impl = assemblyai.STT()
     agent = VoicePipelineAgent(
         vad=ctx.proc.userdata["vad"],
-        # stt=openai.STT(),
-        # sst=assemblyai.STT(),
-        stt=deepgram.STT(),
+        stt=stt_impl,
         llm=llama_index.LLM(chat_engine=chat_engine),
         tts=cartesia.TTS(
             model="sonic-preview",
