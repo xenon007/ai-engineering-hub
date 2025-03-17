@@ -1,6 +1,6 @@
-# Gemma-3 Vision App
+# Gemma-3 OCR App
 
-This project leverages Gemma-3 vision capabilities and Streamlit to create a 100% locally running computer vision app that can perform both OCR and object detection.
+This project leverages Gemma-3 vision capabilities and Streamlit to create a 100% locally running computer vision app that can perform both OCR and extract structured text from the image.
 
 ## Installation and setup
 
@@ -15,15 +15,8 @@ This project leverages Gemma-3 vision capabilities and Streamlit to create a 100
 **Install Dependencies**:
    Ensure you have Python 3.11 or later installed.
    ```bash
-   pip install streamlit ollama Pillow
+   pip install streamlit ollama pillow
    ```
-
-## Features
-
-- **Text Extraction**: Extract and structure text content from images
-- **Object Detection**: Identify objects in images with their locations and bounding boxes
-- **Local Processing**: 100% locally running application with no data sent to external servers
-- **Interactive UI**: Easy-to-use interface with mode switching and image preview
 
 ---
 
