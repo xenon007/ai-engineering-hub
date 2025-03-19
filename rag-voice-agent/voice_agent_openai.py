@@ -7,7 +7,7 @@ from livekit.agents.llm import (
     ChatContext,
 )
 from livekit.agents.pipeline import VoicePipelineAgent
-from livekit.plugins import deepgram, cartesia, openai, silero, llama_index, assemblyai
+from livekit.plugins import cartesia, openai, silero, llama_index
 
 load_dotenv()
 
