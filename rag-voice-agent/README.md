@@ -15,8 +15,8 @@ pip install -r requirements.txt
 This implementation uses OpenAI's services for speech-to-text and cartesia for speech synthesis, simpler setup if you already have OpenAI API keys.
 
 ### Requirements
-1. OpenAI API key
-2. [Cartesia AI key](https://go.cartesia.ai/akshay)
+1. [Cartesia AI key](https://go.cartesia.ai/akshay)
+2. OpenAI API key
 3. [LiveKit credentials](https://livekit.io/)
 
 ### Setup
