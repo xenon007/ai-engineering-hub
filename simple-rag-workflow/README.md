@@ -4,7 +4,7 @@ A basic implementation guide for building a Retrieval-Augmented Generation (RAG)
 
 ## Prerequisites
 
-- Python 3.8+
+- Python 3.10+
 - Ollama
 
 ## Installation
@@ -23,12 +23,7 @@ curl -fsSL https://ollama.com/install.sh | sh
 
 2. Pull the Llama 2 model:
 ```bash
-ollama pull llama2
-```
-
-3. Install Python dependencies:
-```bash
-pip install -r requirements.txt
+ollama pull llama3.2
 ```
 
 ## Project Overview
