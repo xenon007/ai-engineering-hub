@@ -2,7 +2,7 @@ import sys
 import datetime
 import streamlit as st
 import os
-from crewai import Crew, Process, Task, Agent
+from crewai import Crew, Process, Task, Agent, LLM
 from browserbase import browserbase
 from kayak import kayak_hotels
 from dotenv import load_dotenv
@@ -13,6 +13,11 @@ st.set_page_config(page_title="🏨 HotelFinder Pro", layout="wide")
 # Title and subtitle with custom HTML for blue color
 st.markdown("<h1 style='color: #0066cc;'>🏨 HotelFinder Pro</h1>", unsafe_allow_html=True)
 st.subheader("Powered by Browserbase and CrewAI")
+
+@st.cache_data(show_spinner=False)
+def load_llm():
+    """Initialize and return Groq LLM with caching"""
+    return LLM(model="groq/meta-llama/llama-4-scout-17b-16e-instruct")
 
 # Sidebar for API key input
 with st.sidebar:
@@ -63,6 +68,7 @@ hotels_agent = Agent(
     backstory="I am an agent that can search for hotels and find the best accommodations.",
     tools=[kayak_hotels, browserbase],
     allow_delegation=False,
+    llm=load_llm(),
 )
 
 summarize_agent = Agent(
@@ -70,6 +76,7 @@ summarize_agent = Agent(
     goal="Summarize hotel information",
     backstory="I am an agent that can summarize hotel details and amenities.",
     allow_delegation=False,
+    llm=load_llm(),
 )
 
 output_search_example = """
@@ -122,9 +129,10 @@ if search_button:
             crew = Crew(
                 agents=[hotels_agent, summarize_agent],
                 tasks=[search_task, search_booking_providers_task],
-                max_rpm=100,
+                max_rpm=1,
                 verbose=True,
                 planning=True,
+                llm=load_llm(),
             )
             
             # Execute the search

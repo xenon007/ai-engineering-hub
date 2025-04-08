@@ -17,6 +17,7 @@ st.subheader("Powered by Browserbase and CrewAI")
 # Sidebar for API key input
 with st.sidebar:
     # Add Browserbase logo and Configuration header in the same line
+    # Browserbase Configuration
     col1, col2 = st.columns([1, 3])
     with col1:
         # Add vertical space to align with header
@@ -33,7 +34,7 @@ with st.sidebar:
     # Store API key as environment variable
     if browserbase_api_key:
         os.environ["BROWSERBASE_API_KEY"] = browserbase_api_key
-        st.success("API Key stored successfully!")
+        st.success("Browserbase API Key stored successfully!")
 
 # Load environment variables
 load_dotenv()  # take environment variables from .env.
@@ -46,7 +47,7 @@ st.header("Search for Hotels")
 col1, col2 = st.columns(2)
 
 with col1:
-    location = st.text_input("Location", "Enter city, area, or landmark")
+    location = st.text_input("Location", placeholder="Enter city, area, or landmark")
     num_adults = st.number_input("Number of Adults", min_value=1, max_value=10, value=2)
 
 with col2:
@@ -122,7 +123,7 @@ if search_button:
             crew = Crew(
                 agents=[hotels_agent, summarize_agent],
                 tasks=[search_task, search_booking_providers_task],
-                max_rpm=1,
+                max_rpm=100,
                 verbose=True,
                 planning=True,
             )
