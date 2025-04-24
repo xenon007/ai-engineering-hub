@@ -1,0 +1,5 @@
+The project in the present directory is the Windows variant... and the one in mcp-linux folder is Linux variant.
+
+BUG TO FIX:
+
+MCP connection not getting established. Doesn't recognize tools available and gives 'client closed' error.
