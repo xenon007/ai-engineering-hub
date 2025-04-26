@@ -4,7 +4,7 @@ We're building an MCP-powered multi-agent deep researcher, it can perform deep w
 
 We use:
 
-- LinkUp (Search Tool)
+- [LinkUp](https://www.linkup.so/) (Search Tool)
 - CrewAI (Agentic design)
 - Deepseek R1 (LLM)
 - Streamlit to wrap the logic in an interactive UI
