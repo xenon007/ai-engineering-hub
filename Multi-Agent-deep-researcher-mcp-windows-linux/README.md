@@ -46,7 +46,7 @@ streamlit run app.py
   }
 }
 ```
-
+[Get your Linkup API keys here](https://www.linkup.so/)
 
 ## 📬 Stay Updated with Our Newsletter!
 
