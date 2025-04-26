@@ -13,9 +13,8 @@ load_dotenv()
 def get_llm_client():
     """Initialize and return the LLM client"""
     return LLM(
-        model="openrouter/deepseek/deepseek-chat:free",
-        base_url="https://openrouter.ai/api/v1",
-        api_key=os.getenv("OPENROUTER_API_KEY")
+        model="ollama/deepseek-r1:7b",
+        base_url="http://localhost:11434"
     )
 
 # Define LinkUp Search Tool
@@ -77,7 +76,7 @@ def create_research_crew(query: str):
     # Define the research analyst
     research_analyst = Agent(
         role="Research Analyst",
-        goal="Analyze and synthesize raw information into structured insights, along with source links (urls).",
+        goal="Analyze and synthesize raw information into structured insights, along with source links (urls) as citations.",
         backstory="An expert at analyzing information, identifying patterns, and extracting key insights. If required, can delagate the task of fact checking/verification to 'Web Searcher' only. Passes the final results to the 'Technical Writer' only.",
         verbose=True,
         allow_delegation=True,
@@ -87,7 +86,7 @@ def create_research_crew(query: str):
     # Define the technical writer
     technical_writer = Agent(
         role="Technical Writer",
-        goal="Create well-structured, clear, and comprehensive responses, along with source links (urls).",
+        goal="Create well-structured, clear, and comprehensive responses in markdown format, with citations/source links (urls).",
         backstory="An expert at communicating complex information in an accessible way.",
         verbose=True,
         allow_delegation=False,

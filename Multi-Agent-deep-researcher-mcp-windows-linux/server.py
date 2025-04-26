@@ -5,10 +5,9 @@ from agents import run_research
 # Create FastMCP instance
 mcp = FastMCP("crew_research")
 
-
 @mcp.tool()
 async def crew_research(query: str) -> str:
-    """Run CrewAI-based research system for given user query. Also does deep web search.
+    """Run CrewAI-based research system for given user query. Can do both standard and deep web search.
 
     Args:
         query (str): The research query or question.
@@ -24,22 +23,20 @@ if __name__ == "__main__":
     mcp.run(transport="stdio")
 
 
-# I found the below format to work for a user on Cursor Discussion Forum, but did not work for me
-
-# inside ./.cursor/mcp.json
+# add this inside ./.cursor/mcp.json
 # {
-#     "mcpServers": {
-#         "crew_research": {
-#             "command": "C:\\Windows\\System32\\cmd.exe",
-#             "args": [
-#                 "/c",
-#                 "python",
-#                 "absolute path"
-#             ],
-#             "env": {
-#                 "OPENROUTER_API_KEY": "key",
-#                 "LINKUP_API_KEY": "key"
-#             }
-#         }
+#   "mcpServers": {
+#     "crew_research": {
+#       "command": "uv",
+#       "args": [
+#         "--directory",
+#         "/Users/akshay/Eigen/ai-engineering-hub/Multi-Agent-deep-researcher-mcp-windows-linux",
+#         "run",
+#         "server.py"
+#       ],
+#       "env": {
+#         "LINKUP_API_KEY": "your_linkup_api_key_here"
+#       }
 #     }
+#   }
 # }
