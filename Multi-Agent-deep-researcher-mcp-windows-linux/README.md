@@ -1,12 +1,12 @@
 # Agentic Deep Researcher
 
-Agentic Deep Researcher is a cutting-edge project designed to explore and implement advanced research methodologies using artificial intelligence. This project aims to assist researchers in automating complex tasks, generating insights, and enhancing productivity.
+We're building an MCP-powered multi-agent deep researcher, it can perform deep web searches using [Linkup](https://www.linkup.so/) amd the agents are orchestrated using CrewAI.
 
 We use:
 
 - LinkUp (Search Tool)
 - CrewAI (Agentic design)
-- Deepseek V3 (LLM)
+- Deepseek R1 (LLM)
 - Streamlit to wrap the logic in an interactive UI
 
 ### SetUp
@@ -17,6 +17,7 @@ Run these commands in project root
 uv sync
 ```
 
+
 ### Run the Application
 
 Run the application with:
@@ -24,6 +25,28 @@ Run the application with:
 ```bash
 streamlit run app.py
 ```
+
+### Use as MCP server
+
+```json
+{
+  "mcpServers": {
+    "crew_research": {
+      "command": "uv",
+      "args": [
+        "--directory",
+        "./Multi-Agent-deep-researcher-mcp-windows-linux",
+        "run",
+        "server.py"
+      ],
+      "env": {
+        "LINKUP_API_KEY": "your_linkup_api_key_here"
+      }
+    }
+  }
+}
+```
+
 
 ## 📬 Stay Updated with Our Newsletter!
 
