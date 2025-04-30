@@ -1,4 +1,5 @@
 # Import necessary libraries
+import re
 import uuid
 from autogen import UserProxyAgent
 from zep_cloud.client import Zep
@@ -136,6 +137,9 @@ def handle_conversations(agent, user, prompt):
     with st.chat_message("user"):
         st.markdown(prompt)
 
+    # Append /no_think token for the backend processing
+    prompt_with_token = f"{prompt} /no_think"
+
     # Store user's full name instead of ID
     user_full_name = f"{st.session_state.get('first_name', '')} {st.session_state.get('last_name', '')}".strip()
 
@@ -166,12 +170,15 @@ def handle_conversations(agent, user, prompt):
             if not full_response or full_response == "...":
                 full_response = "Sorry, I couldn't generate a response."
 
+            # Remove <think> </think> tags from the response
+            clean_response = re.sub(r'<think>.*?</think>', '', full_response, flags=re.DOTALL).strip()
+
             # Display the response
-            message_placeholder.markdown(full_response)
+            message_placeholder.markdown(clean_response)
 
             # Add assistant response to display history
             st.session_state.messages.append(
-                {"role": "assistant", "content": full_response}
+                {"role": "assistant", "content": clean_response}
             )
 
         # Handle any exceptions during chat
@@ -213,10 +220,15 @@ def main():
     # Sidebar for API key, user information and controls
     with st.sidebar:
         # API Key input section
-        st.header("🔑 API Configuration")
-        st.markdown(
-            "[Get your API key](https://app.linkup.so/sign-up)", unsafe_allow_html=True
-        )
+        zep_logo_html = """
+        <div style='display: flex; align-items: center; gap: 10px; margin-top: 5px;'>
+            <img src="https://files.buildwithfern.com/zep.docs.buildwithfern.com/2025-04-23T01:17:51.789Z/logo/zep-name-logo-pink.svg" width="100"> 
+            <span style='font-size: 23px; color: #FFF; line-height: 1; display: flex; align-items: center; margin: 0;'>Configuration 🔑</span>
+        </div>
+        """
+        st.markdown(zep_logo_html, unsafe_allow_html=True)
+        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown("[Get your API key](https://www.getzep.com/)", unsafe_allow_html=True)
 
         # Use session state to persist API key
         if "zep_api_key" not in st.session_state:
