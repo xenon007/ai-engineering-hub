@@ -159,7 +159,7 @@ def handle_conversations(agent, user, prompt):
             # Initiate chat with single turn
             user.initiate_chat(
                 recipient=agent,
-                message=prompt,
+                message=prompt_with_token,
                 max_turns=1,
                 clear_history=False,
             )
