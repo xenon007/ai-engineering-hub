@@ -1,6 +1,6 @@
-# MetaAI's Llama 4 and DeeSeek-R1 compared using RAG
+# Alibaba's Qwen3 and DeepSeek-R1 compared using RAG
 
-This tutorials build a RAG app powered by [LlamaIndex](https://www.llamaindex.ai/) to compare Qwen3 and DeeSeek-R1. We have used [Opik](https://github.com/comet-ml/opik) for evaluation and observability, which is 100% open-source and nicely integrates with alsmot all popular frameworks.
+This tutorials build a RAG app powered by [LlamaIndex](https://www.llamaindex.ai/) to compare Qwen3 and DeepSeek-R1. We have used [Opik](https://github.com/comet-ml/opik) for evaluation and observability, which is 100% open-source and nicely integrates with alsmot all popular frameworks.
 
 ### Setup
 
