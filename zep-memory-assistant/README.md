@@ -7,7 +7,7 @@ We use:
 - [Zep](https://www.getzep.com/) for the memory layer to AI agent
 - Autogen (Agent Orchestration)
 - Ollama as Model Provider
-- Gemma 3 QAT (LLM)
+- Qwen 3 (LLM)
 - Streamlit to wrap the logic in an interactive UI
 
 ## Set Up
@@ -20,8 +20,8 @@ Run these commands in project root
 # Setting up Ollama on linux
 curl -fsSL https://ollama.com/install.sh | sh
 
-# Pull the Gemma 3 1B model
-ollama pull gemma3:1b-it-qat
+# Pull the Qwen 3 4B model
+ollama pull qwen3:4b
 ```
 
 ### Install Dependencies
