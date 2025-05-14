@@ -1,3 +1,6 @@
+import nest_asyncio
+nest_asyncio.apply()
+
 from documentation_flow import CreateDocumentationFlow
 
 def run_doc_flow(repo_url: str) -> list[str]:
