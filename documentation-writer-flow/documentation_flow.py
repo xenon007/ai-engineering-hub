@@ -48,6 +48,8 @@ class CreateDocumentationFlow(Flow[DocumentationState]):
     @listen(plan_docs)
     def save_plan(self, plan):
         docs_dir = Path("docs")
+        if docs_dir.exists():
+            rmtree(docs_dir, onexc=remove_readonly)
         docs_dir.mkdir(exist_ok=True)
         with open(docs_dir / "plan.json", "w") as f:
             f.write(plan.raw)
