@@ -22,7 +22,7 @@ ollama pull deepseek-r1
 
 **Install Dependencies**
 
-   Ensure you have Python 3.11 or later installed.
+   Ensure you have Python 3.12 or later installed.
    ```bash
    pip install crewai crewai-tools ollama mcp
    ```
@@ -51,7 +51,7 @@ In the JSON file, add this:
 }
 ```
 
-You should be able to see the MCP server now listed in the MCP settings.
+You should now be able to see the MCP server listed in the MCP settings.
 
 Next, start the server using
 ```bash
