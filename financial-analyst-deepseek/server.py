@@ -27,7 +27,7 @@ def analyze_stock(query: str) -> str:
         result = run_financial_analysis(query)
         # Save the generated code to local directory
         with open('stock_analysis.py', 'w') as f:
-            f.write(result.raw)
+            f.write(result)
         return f"Stock analysis code saved to stock_analysis.py"
     except Exception as e:
         return f"Error: {e}"
