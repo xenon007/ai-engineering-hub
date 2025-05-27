@@ -53,20 +53,10 @@ def save_code(code: str) -> str:
 @mcp.tool()
 def run_code_and_show_plot() -> str:
     """
-    Run the code in stock_analysis.py and save the plot to a file plot.png
-
-    Args:
-        None
-    
-    Returns:
-        str: A message indicating the plot was saved successfully.
+    Run the code in stock_analysis.py and generate the plot
     """
-    try:
-        with open('stock_analysis.py', 'r') as f:
-            exec(f.read())
-        return "Plot saved successfully to plot.png"
-    except Exception as e:
-        return f"Error: {e}"
+    with open('stock_analysis.py', 'r') as f:
+        exec(f.read())
 
 # Run the server locally
 if __name__ == "__main__":
