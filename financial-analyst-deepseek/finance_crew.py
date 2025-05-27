@@ -8,7 +8,7 @@ from crewai_tools import CodeInterpreterTool, FileReadTool
 
 class QueryAnalysisOutput(BaseModel):
     """Structured output for the query analysis task."""
-    symbol: str = Field(..., description="Stock ticker symbol (e.g., TSLA, AAPL).")
+    symbols: list[str] = Field(..., description="List of stock ticker symbols (e.g., ['TSLA', 'AAPL']).")
     timeframe: str = Field(..., description="Time period (e.g., '1d', '1mo', '1y').")
     action: str = Field(..., description="Action to be performed (e.g., 'fetch', 'plot').")
 
@@ -60,17 +60,18 @@ code_interpreter_tool = CodeInterpreterTool()
 
 code_execution_agent = Agent(
     role="Senior Code Execution Expert",
-    goal="Review and execute the generated Python code by code writer agent to visualize stock data.",
+    goal="Review and execute the generated Python code by code writer agent to visualize stock data and fix any errors encountered. It can delegate tasks to code writer agent if needed.",
     backstory="You are a code execution expert. You are skilled at executing Python code.",
     # tools=[code_interpreter_tool],
     allow_code_execution=True,   # This automatically adds the CodeInterpreterTool
+    allow_delegation=True,
     llm=llm,
     verbose=True,
 )
 
 code_execution_task = Task(
-    description="""Review and execute the generated Python code by code writer agent to visualize stock data.""",
-    expected_output="A clean and executable Python script file (.py) for stock visualization.",
+    description="""Review and execute the generated Python code by code writer agent to visualize stock data and fix any errors encountered.""",
+    expected_output="A clean, working and executable Python script file (.py) for stock visualization.",
     agent=code_execution_agent,
 )
 

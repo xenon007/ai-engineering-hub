@@ -26,10 +26,10 @@ ollama pull deepseek-r1
 
    You can use uv to directly install the required dependencies (recommended).
    ```bash
-    uv pip sync uv.lock
+    uv sync
    ```
 
-   Or you can also use pip to install the following dependecnies to your local environment.
+   Or you can also use pip to install the following dependencies to your local environment.
    ```bash
    pip install crewai crewai-tools ollama mcp pydantic yfinance pandas matplotlib
    ```
@@ -53,8 +53,6 @@ In the JSON file, add this:
                 "--directory",
                 "absolute/path/to/project_root",
                 "run",
-                "--with",
-                "mcp",
                 "server.py"
             ]
         }
