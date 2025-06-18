@@ -438,7 +438,7 @@ body, .stApp, .stMarkdown, .stText, .stTitle, .stHeader, .stSubheader, .stDataFr
 
 def get_logo_base64():
     """Convert logo file to base64 string for embedding"""
-    logo_path = Path("assemblyai-app/assets/logo.png")
+    logo_path = Path("audio-analysis-toolkit/assets/logo.png")
     
     if logo_path.exists():
         try:
