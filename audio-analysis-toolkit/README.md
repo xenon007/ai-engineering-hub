@@ -46,7 +46,7 @@ ASSEMBLYAI_API_KEY=your_assemblyai_api_key
 Launch the web app for interactive audio analysis:
 
 ```bash
-streamlit run assemblyai_app.py
+streamlit run app.py
 ```
 
 - **Upload Audio**: Drag and drop or browse for audio files (WAV, MP3, MP4, M4A, FLAC)
