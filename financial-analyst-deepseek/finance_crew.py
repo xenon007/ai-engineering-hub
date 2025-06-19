@@ -6,6 +6,10 @@ from pydantic import BaseModel, Field
 from crewai import Agent, Task, Crew, Process, LLM
 from crewai_tools import CodeInterpreterTool, FileReadTool
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 class QueryAnalysisOutput(BaseModel):
     """Structured output for the query analysis task."""
     symbols: list[str] = Field(..., description="List of stock ticker symbols (e.g., ['TSLA', 'AAPL']).")
@@ -17,6 +21,11 @@ llm = LLM(
     base_url="http://localhost:11434",
     # temperature=0.7
 )
+
+# llm = LLM(
+#     model="openai/gpt-4o",
+#     # temperature=0.7
+# )
 
 # 1) Query parser agent
 query_parser_agent = Agent(
