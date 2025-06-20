@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/ai-eng-hub.gif" alt="AI Engineering Hub Banner" width="800" height="400">
+  <img src="assets/ai-eng-hub.gif" alt="AI Engineering Hub Banner">
 </p>
 
 ---
