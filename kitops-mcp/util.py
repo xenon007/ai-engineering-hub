@@ -11,7 +11,7 @@ def validate_modelkit_tag(modelkit_tag: str) -> bool:
         )
 
     # Split the tag to check individual components
-    path, tag_part = modelkit_tag.split(":")
+    path, tag_part = modelkit_tag.rsplit(":", 1)
     path_parts = path.split("/")
 
     # Ensure all parts are non-empty
