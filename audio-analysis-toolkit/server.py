@@ -8,8 +8,6 @@ load_dotenv()
 aai.settings.api_key = os.getenv("ASSEMBLYAI_API_KEY")
 
 mcp = FastMCP("AssemblyAI Audio Analysis")
-_last_transcript: aai.Transcript = None
-
 
 def _format_timestamp(ms: int) -> str:
     # Convert milliseconds to HH:MM:SS
@@ -20,10 +18,16 @@ def _format_timestamp(ms: int) -> str:
     return f"{hours:02}:{minutes:02}:{seconds:02}"
 
 @mcp.tool()
-def transcribe_audio(audio_path: str) -> dict:
+def transcribe_audio(audio_location: str) -> dict:
     """
-    Transcribe audio and return sentences with timestamps (HH:MM:SS).
-    Caches the Transcript object for later queries.
+    This MCP tool accepts either a URL or an absolute local path to an audio file, transcribes it
+    and returns a summary of the transcript.
+
+    Args:
+        audio_location: The full absolute path or URL to the audio file to transcribe.
+
+    Returns:
+        A summary of the transcript.
     """
     config = aai.TranscriptionConfig(
         speaker_labels=True,
@@ -33,15 +37,9 @@ def transcribe_audio(audio_path: str) -> dict:
         summarization=True,
         language_detection=True
     )
-    transcript = aai.Transcriber().transcribe(audio_path, config=config)
-    sentences = transcript.get_sentences()
-    serialized: List[Dict[str, Any]] = [
-        {"timestamp": _format_timestamp(s.start), "text": s.text}
-        for s in sentences
-    ]
-    global _last_transcript
-    _last_transcript = transcript
-    return {"sentences": serialized}
+    global transcript
+    transcript = aai.Transcriber().transcribe(audio_location, config=config)
+    return transcript.summary
 
 @mcp.tool()
 def get_audio_data(
@@ -53,17 +51,20 @@ def get_audio_data(
     topics: bool = False
 ) -> dict:
     """
-    Retrieve features from the last transcript.
+    This MCP tool accepts a set of flags and returns a dictionary of features from the last transcript.
 
-    Flags:
+    Args:
         text: full transcript text
         timestamps: timestamped sentences
         summary: summary
         speakers: speaker labels
         sentiment: sentiment analysis
         topics: topic categories
+
+    Returns:
+        A dictionary of features from the last transcript.
     """
-    transcript = _last_transcript
+
     if transcript is None:
         return {"error": "No transcript available. Please run transcribe_audio first."}
 
@@ -105,4 +106,4 @@ def get_audio_data(
     return out
 
 if __name__ == "__main__":
-    mcp.run()
+    mcp.run(transport="stdio")

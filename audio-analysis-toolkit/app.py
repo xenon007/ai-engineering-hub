@@ -634,8 +634,8 @@ def display_chat(transcript):
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
     
-    # Add spacing to position chat input (moved up by input's height)
-    st.markdown("<br><br><br><br>", unsafe_allow_html=True)
+    # # Add spacing to position chat input (moved up by input's height)
+    # st.markdown("<br><br><br><br>", unsafe_allow_html=True)
     
     # Chat input - appears naturally at bottom, always visible
     if prompt := st.chat_input("What would you like to know about this audio?"):
@@ -650,7 +650,7 @@ def display_chat(transcript):
         with st.chat_message("assistant"):
             with st.spinner("Analyzing..."):
                 full_prompt = f"Based on the transcript, answer the following question: {prompt}"
-                result = transcript.lemur.task(full_prompt, final_model=aai.LemurModel.claude3_5_sonnet)
+                result = st.session_state.transcript.lemur.task(full_prompt, final_model=aai.LemurModel.claude3_5_sonnet)
                 response = result.response.strip()
             st.markdown(response)
         
@@ -776,8 +776,8 @@ def main():
                 language_detection=True
             )
             
-            transcriber = aai.Transcriber()
-            transcript = transcriber.transcribe(audio_file, config=config)
+            st.session_state.transcriber = aai.Transcriber()
+            st.session_state.transcript = st.session_state.transcriber.transcribe(audio_file, config=config)
         
         st.success('✅ Audio processed successfully!')
         
@@ -792,22 +792,22 @@ def main():
         ])
         
         with tab1:
-            display_transcription(transcript)
+            display_transcription(st.session_state.transcript)
         
         with tab2:
-            display_summary(transcript)
+            display_summary(st.session_state.transcript)
         
         with tab3:
-            display_speakers(transcript)
+            display_speakers(st.session_state.transcript)
         
         with tab4:
-            display_sentiment(transcript)
+            display_sentiment(st.session_state.transcript)
         
         with tab5:
-            display_topics(transcript)
+            display_topics(st.session_state.transcript)
         
         with tab6:
-            display_chat(transcript)
+            display_chat(st.session_state.transcript)
 
 if __name__ == "__main__":
     main() 
