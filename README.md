@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/ai-eng-hub.gif" alt="AI Engineering Hub Banner">
+  <img src="assets/ai-eng-hub.gif" alt="AI Engineering Hub Banner" width="800" height="400">
 </p>
 
 ---
@@ -9,16 +9,11 @@ Welcome to the **AI Engineering Hub**!
 
 ## 🌟 Why This Repo?
 AI Engineering is advancing rapidly, and staying at the forefront requires both deep understanding and hands-on experience. Here, you will find:
-- In-depth tutorials on **LLMs and RAGs**
+- In-depth tutorials on **LLMs and RAGs, featuring MCP**
 - Real-world **AI agent** applications
 - Examples to implement, adapt, and scale in your projects
-
-Whether you’re a beginner, practitioner, or researcher, this repo provides resources for all skill levels to experiment and succeed in AI engineering.
-
 ---
-
 ## 📬 Stay Updated with Our Newsletter!
-**Get a FREE Data Science eBook** 📖 with 150+ essential lessons in Data Science when you subscribe to our newsletter! Stay in the loop with the latest tutorials, insights, and exclusive resources. [Subscribe now!](https://join.dailydoseofds.com)
 
 [![Daily Dose of Data Science Newsletter](https://github.com/patchy631/ai-engineering/blob/main/resources/join_ddods.png)](https://join.dailydoseofds.com)
 
