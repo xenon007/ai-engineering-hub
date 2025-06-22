@@ -61,6 +61,8 @@ Run the MCP server with the created configuration file as `mcp.json` either glob
 }
 ```
 
+Refer to the `prompt.txt` file for some of the prompts you can use to interact with the MCP server through the MCP host - Cursor in our case.
+
 ## 📬 Stay Updated with Our Newsletter!
 
 **Get a FREE Data Science eBook** 📖 with 150+ essential lessons in Data Science when you subscribe to our newsletter! Stay in the loop with the latest tutorials, insights, and exclusive resources. [Subscribe now!](https://join.dailydoseofds.com)
