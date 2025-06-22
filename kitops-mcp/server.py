@@ -108,7 +108,7 @@ def remove_modelkit(modelkit_tag: str) -> str:
     This operation cannot be undone, so use it with caution.
 
     Args:
-        modelkit_tag: The tag of the ModelKit to remove in the format 'owner/name:tag'.
+        modelkit_tag: The tag of the ModelKit to remove in the format 'registry/namespace/repository:tag'.
 
     Returns:
         A message confirming the ModelKit was removed successfully.

@@ -80,13 +80,15 @@ def push_and_pack(modelkit_tag: str, working_dir: str) -> str:
     validate_modelkit_tag(modelkit_tag)
 
     try:
-        # Create a ModelKitManager instance and pack and push the ModelKit
-        kitfile = Kitfile(path=os.path.join(working_dir, "Kitfile"))
-        if not os.path.exists(os.path.join(working_dir, "Kitfile")):
+        # Check if Kitfile exists before creating instance
+        kitfile_path = os.path.join(working_dir, "Kitfile")
+        if not os.path.exists(kitfile_path):
             raise FileNotFoundError(
                 f"Kitfile not found in the working directory '{working_dir}'"
             )
+        kitfile = Kitfile(path=kitfile_path)
 
+        # Create a ModelKitManager instance and pack and push the ModelKit
         manager = ModelKitManager(
             working_directory=working_dir, modelkit_tag=modelkit_tag
         )
