@@ -2,6 +2,16 @@
 
 We are going to implement an MCP server to orchestrate KitOps for managing and distributing machine learning models. Agents will be able to connect to discover tools for creating, inspecting, pushing, pulling, and removing ModelKits from remote registries like Jozu Hub.
 
+What Makes ModelKits Different?
+
+While Docker containers package applications, ModelKits are purpose-built for AI/ML workflows. They solve the unique challenges AI engineers face when moving projects between environments.
+
+Key Advantages Over Traditional Docker:
+
+- Selectively unpack kits — skip pulling what you don’t need
+- Doubles as your private model registry
+- One-command deployment
+
 We use:
 
 - [KitOps](https://kitops.org/) for versioning, packaging, and distributing ML models
