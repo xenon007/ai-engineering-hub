@@ -5,6 +5,7 @@ We are going to implement an MCP server to orchestrate KitOps for managing and d
 We use:
 
 - [KitOps](https://kitops.org/) for versioning, packaging, and distributing ML models
+- [Jozu Hub](https://jozu.ml/) as a remote registry for storing and sharing ModelKits
 - Cursor (MCP Host)
 
 ## Set Up
@@ -32,6 +33,8 @@ JOZU_NAMESPACE=<name_of_repository_in_jozu_hub>
 ```
 
 All the values are associated with your Jozu Hub account. If you don't have a Jozu account, you can create one at [Jozu Hub](https://jozu.ml/).
+
+For our demo, we used this Jozu Hub ModelKit: [wine-class-prediction](https://jozu.ml/repository/sitammeur/wine-class-prediction/latest). You can also use this ModelKit for your experiments.
 
 ### Install Dependencies
 
