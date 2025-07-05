@@ -29,8 +29,8 @@ streaming-ai-chatbot/
 
 ```bash
 # Clone the repository
-git clone https://github.com/MotiaDev/motia-examples.git
-cd motia-examples/streaming-ai-chatbot
+git clone https://github.com/patchy631/ai-engineering-hub.git
+cd streaming-ai-chatbot
 
 # Install dependencies
 npm install
