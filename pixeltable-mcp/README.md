@@ -1,6 +1,8 @@
 # Pixeltable MCP Server
 
-We are going to implement a powerful, multi-modal, multi-agent workflow. This system can intelligently handle and process queries related to documents, images, video, and audio, providing a seamless AI experience. The workflow is designed for efficiency and intelligence, directing user requests to the agent best equipped to handle them.
+We're building a unified multimodal data storage and orchestration solution powered by Pixeltable. It enables incremental storage, transformation, indexing, and orchestration of your multimodal data—providing a single, seamless way to store and search across text, images, audio, and video.
+
+To demonstrate the usage, we have created MCP servers on top of Pixeltable infra for different modalities and connected them to Agents powered by local LLMs. You can also use these servers as part of your own solution.
 
 How It Works:
 
