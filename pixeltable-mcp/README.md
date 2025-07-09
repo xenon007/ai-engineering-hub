@@ -28,6 +28,22 @@ Create a `.env` file in the root directory of your project with the following co
 OPENAI_API_KEY=<your_openai_api_key>
 ```
 
+### Download Ollama
+
+Download and install [Ollama](https://ollama.com/download) for your operating system. Ollama is used to run large language models locally.
+
+For example, on linux, you can use the following command:
+
+```bash
+curl -fsSL https://ollama.com/install.sh | sh
+```
+
+Pull the required model:
+
+```bash
+ollama pull gemma3
+```
+
 ### Install Dependencies
 
 ```bash
