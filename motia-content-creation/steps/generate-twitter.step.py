@@ -1,7 +1,11 @@
+import os
 import json
 from pydantic import BaseModel, HttpUrl
 from ollama import AsyncClient
 from datetime import datetime
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class GenerateInput(BaseModel):
     requestId: str
@@ -30,7 +34,7 @@ async def handler(input, context):
         context.logger.info("🔄 Twitter content generation started...")
 
         ollama_client = AsyncClient()
-        response = await ollama_client.chat(model="mistral", messages=[{'role': 'user', 'content': twitterPrompt}])
+        response = await ollama_client.chat(model=os.getenv('OLLAMA_MODEL'), messages=[{'role': 'user', 'content': twitterPrompt}])
 
         try:
             twitter_content = json.loads(response.message.content)

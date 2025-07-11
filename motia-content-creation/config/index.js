@@ -9,10 +9,6 @@ const config = {
     apiKey: process.env.TYPEFULLY_API_KEY,
   },
 
-  motia: {
-    port: parseInt(process.env.MOTIA_PORT) || 3000,
-  },
-
   validate() {
     const required = ['FIRECRAWL_API_KEY', 'TYPEFULLY_API_KEY'];
     const missing = required.filter(key => !process.env[key]);

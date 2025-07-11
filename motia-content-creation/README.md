@@ -5,7 +5,7 @@ A streamlined content generation agent built with [Motia](https://motia.dev) tha
 We use the following tech stack:
 - Motia as the unified backend framework
 - Firecrawl to scrape web content
-- Ollama for serving Deepseek-R1 LLM
+- Ollama for serving Deepseek-R1 locally
 
 ## 🎯Overview
 
@@ -34,7 +34,16 @@ API → Scrape → Generate → Schedule
 
 ### Installation
 
-1. **Install dependencies:**
+1. **Install Ollama:**
+   ```bash
+   # Setting up Ollama on linux
+   curl -fsSL https://ollama.com/install.sh | sh
+
+   # Pull the Deepseek-R1 model
+   ollama pull deepseek-r1
+   ```
+
+2. **Install project dependencies:**
    ```bash
    npm install or pnpm install
    ```
