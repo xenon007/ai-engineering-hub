@@ -5,7 +5,7 @@ A streamlined content generation agent built with [Motia](https://motia.dev) tha
 We use the following tech stack:
 - Motia as the unified backend framework
 - Firecrawl to scrape web content
-- OpenAI for agentic capabilities
+- Ollama for serving Deepseek-R1 LLM
 
 ## 🎯Overview
 
@@ -19,7 +19,7 @@ API → Scrape → Generate → Schedule
 
 1. **API**: Receives article URL via POST request
 2. **Scrape**: Extracts content using Firecrawl in markdown format
-3. **Generate**: Creates Twitter & LinkedIn content using OpenAI
+3. **Generate**: Creates Twitter & LinkedIn content using Deepseek-R1
 4. **Schedule**: Saves content as drafts in Typefully for review
 
 ## 🛠️ Setup
@@ -29,7 +29,6 @@ API → Scrape → Generate → Schedule
 - Node.js 18+
 - Python 3.x
 - API keys for:
-  - OpenAI
   - Firecrawl
   - Typefully
 
@@ -47,7 +46,6 @@ API → Scrape → Generate → Schedule
    ```
    or Create a `.env` file in the root directory with the following variables:
    ```bash
-    OPENAI_API_KEY=your_openai_api_key
     FIRECRAWL_API_KEY=your_firecrawl_api_key
     TYPEFULLY_API_KEY=your_typefully_api_key
    ```
@@ -91,17 +89,20 @@ After processing completes:
 ```
 social-media-automation/
 ├── steps/
-│   ├── api.step.ts          # API endpoint handler
-│   ├── scrape.step.ts       # Firecrawl integration
-│   ├── generate.step.ts     # Parallel OpenAI calls
-│   └── schedule.step.ts     # Typefully scheduling
+│   ├── api.step.py                   # API endpoint handler
+│   ├── scrape.step.py                # Firecrawl integration
+│   ├── generate-linkedin.step.py     # Ollama Linkedin generation
+│   ├── generate-twitter.step.py      # Ollama Twitter generation
+│   ├── schedule-twitter.step.ts      # Twitter Typefully scheduling
+│   └── schedule-linkedin.step.ts     # LinkedIn Typefully scheduling
 ├── prompts/
 │   ├── twitter-prompt.txt   # Twitter generation prompt
 │   └── linkedin-prompt.txt  # LinkedIn generation prompt
 ├── config/
-│   └── index.js            # Configuration management
+│   └── index.js             # Configuration management
 ├── package.json
-├── tsconfig.json
+├── motia-workbench.json
+├── requirements.txt
 └── README.md
 ```
 

@@ -1,11 +1,6 @@
 require('dotenv').config();
 
 const config = {
-  openai: {
-    apiKey: process.env.OPENAI_API_KEY,
-    model: 'gpt-4o',
-  },
-
   firecrawl: {
     apiKey: process.env.FIRECRAWL_API_KEY,
   },
@@ -19,7 +14,7 @@ const config = {
   },
 
   validate() {
-    const required = ['OPENAI_API_KEY', 'FIRECRAWL_API_KEY', 'TYPEFULLY_API_KEY'];
+    const required = ['FIRECRAWL_API_KEY', 'TYPEFULLY_API_KEY'];
     const missing = required.filter(key => !process.env[key]);
 
     if (missing.length > 0) {

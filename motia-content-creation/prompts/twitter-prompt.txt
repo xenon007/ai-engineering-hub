@@ -112,7 +112,8 @@ Return your response in the following JSON format:
     {
       "tweetNumber": 2,
       "content": "Your second tweet content here (2/n)"
-    }
+    },
+    ...
   ],
-  "totalTweets": 5
+  "totalTweets": number of tweets
 }

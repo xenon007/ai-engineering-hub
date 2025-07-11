@@ -31,7 +31,6 @@ config = {
 
 async def handler(req, context):
     # Extract request data
-    # req = input['req']
     url = str(req['body']['url'])
 
     context.logger.info('🚀 Starting content generation workflow...')
