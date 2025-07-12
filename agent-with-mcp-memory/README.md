@@ -8,10 +8,10 @@ This project is a hands-on crash course on building AI agents using a 100% open-
 - Replacing tools with MCP servers
 - Setting up observability and tracing
 
+All concepts are demonstrated with real, runnable code.
+
 ### Watch this tutorial on YouTube
 [![Watch this tutorial on YouTube](assets/thumbnail.jpeg)](https://youtu.be/R6sMAZaTCR4)
-
-All concepts are demonstrated with real, runnable code.
 
 ## What is an AI Agent?
 
