@@ -11,7 +11,9 @@ This project is a hands-on crash course on building AI agents using a 100% open-
 All concepts are demonstrated with real, runnable code.
 
 ### Watch this tutorial on YouTube
-[![Watch this tutorial on YouTube](assets/thumbnail.jpeg)](https://youtu.be/R6sMAZaTCR4)
+<a href="https://youtu.be/R6sMAZaTCR4">
+  <img src="assets/thumbnail.jpeg" alt="Watch this tutorial on YouTube" width="350"/>
+</a>
 
 ## What is an AI Agent?
 
