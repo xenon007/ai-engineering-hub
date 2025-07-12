@@ -12,7 +12,7 @@ All concepts are demonstrated with real, runnable code.
 
 ### Watch this tutorial on YouTube
 <a href="https://youtu.be/R6sMAZaTCR4">
-  <img src="assets/thumbnail.jpeg" alt="Watch this tutorial on YouTube" width="350"/>
+  <img src="assets/thumbnail.jpeg" alt="Watch this tutorial on YouTube" width="450"/>
 </a>
 
 ## What is an AI Agent?
