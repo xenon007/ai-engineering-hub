@@ -17,7 +17,7 @@ async def run_workflow() -> None:
             agent="research_verifier",
             input=f"Enhance the following research summary using the latest information available online providing a more accurate and updated version:\n{draft}"
         )
-        final_summary = response2
+        final_summary = response2.output[0].parts[0].content
         print(f"\nVerified & Enriched Summary:\n{final_summary}")
 
 if __name__ == "__main__":
