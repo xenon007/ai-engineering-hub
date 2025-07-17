@@ -55,16 +55,16 @@ Start the two ACP servers in separate terminals:
 
 ```bash
 # Terminal 1
-uv crew_acp_server.py
+uv run crew_acp_server.py
 
 # Terminal 2
-uv smolagents_acp_server.py
+uv run smolagents_acp_server.py
 ```
 
 Run the ACP client to trigger the agent workflow:
 
 ```bash
-uv acp_client.py
+uv run acp_client.py
 ```
 
 Output:
