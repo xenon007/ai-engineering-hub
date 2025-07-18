@@ -35,8 +35,8 @@ class BrowserAutomationFlowState(BaseModel):
 
 
 class AutomationPlan(BaseModel):
-    task_description: str = ""
-    website_url: str = ""
+    task_description: str
+    website_url: str
 
 
 class BrowserAutomationFlow(Flow[BrowserAutomationFlowState]):

@@ -30,7 +30,7 @@ def browser_automation(task_description: str, website_url: str) -> str:
             agent = stagehand.agent(
                 model="computer-use-preview",
                 provider="openai",
-                instructions="You are a helpful web navigation assistant that helps users find information. You are currently on the following page: google.com. Do not ask follow-up questions.",
+                instructions="You are a helpful web navigation assistant that helps users find information. Do not ask follow-up questions.",
                 options={"apiKey": os.getenv("MODEL_API_KEY")},
             )
 
@@ -51,5 +51,5 @@ def browser_automation(task_description: str, website_url: str) -> str:
             if stagehand:
                 await stagehand.close()
 
-    # Run async coroutine safely in a sync context
-    return asyncio.get_event_loop().run_until_complete(_execute_automation())
+    # Run async in a sync context
+    return asyncio.run(_execute_automation())
