@@ -31,6 +31,10 @@ bash standalone_embed.sh start
 uv sync
 ```
 
+## Run the Notebook
+
+You can run the `notebook.ipynb` file to test the functionality of the code in a Jupyter Notebook environment. This notebook will guide you through the process of querying code and validating responses.
+
 ## Run the Application
 
 To run the Streamlit app, use the following command:
@@ -38,6 +42,8 @@ To run the Streamlit app, use the following command:
 ```bash
 streamlit run app.py
 ```
+
+Open your browser and navigate to `http://localhost:8501` to access the app.
 
 ## 📬 Stay Updated with Our Newsletter!
 
