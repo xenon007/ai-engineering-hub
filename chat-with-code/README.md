@@ -1,13 +1,13 @@
 # Chat with Code using Qwen3-Coder
 
-We're building a Streamlit app that allows users to chat with code using the Qwen3 Coder model. The app provides a user-friendly interface for querying code and receiving responses, with the added benefit of validating the responses using Cleanlab.
+Enhance your experience with GitHub repositories through a natural language interface. We are developing a Streamlit app that enables users to communicate with code using the Qwen3-Coder model. This app offers a user-friendly interface for querying code and receiving responses, along with the additional advantage of validating those responses using Cleanlab Codex.
 
 We use:
 
 - [Llama_Index](https://docs.llamaindex.ai/en/stable/) for orchestration
-- [Milvus](https://milvus.io/) to self-host a vectorDB
+- [Milvus](https://milvus.io/) to self-host a VectorDB
 - [Cleanlab](https://help.cleanlab.ai/codex/) codex to validate the response
-- [OpenRouterAI](https://openrouter.ai/docs/quick-start) to access Alibaba's Qwen3 Coder
+- [OpenRouterAI](https://openrouter.ai/docs/quick-start) to access Alibaba's Qwen3-Coder
 
 ## Set Up
 
