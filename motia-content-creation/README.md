@@ -1,6 +1,6 @@
 # Social Media Automation workflow using Motia
 
-A streamlined content generation agent built with [Motia](https://motia.dev) that transforms articles into engaging Twitter threads and LinkedIn posts using AI.
+A streamlined content generation agent built with [Motia](https://github.com/MotiaDev/motia) that transforms articles into engaging Twitter threads and LinkedIn posts using AI.
 
 We use the following tech stack:
 - Motia as the unified backend framework
