@@ -1,5 +1,7 @@
 # RAG with SQL Router
 
+We are developing a system that will guide you in creating a custom agent. This agent can query either your Vector DB index for RAG-based retrieval or a separate SQL query engine. Additionally, it will have the advantage of validating responses using Cleanlab Codex.
+
 We use:
 
 - [Llama_Index](https://docs.llamaindex.ai/en/stable/) for orchestration
