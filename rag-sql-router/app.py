@@ -8,6 +8,10 @@ import random
 import time
 import tempfile
 import streamlit as st
+import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
+from sqlalchemy import create_engine, text
 
 # Import necessary components from llama_index
 from llama_index.core import Settings
@@ -17,6 +21,10 @@ from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 # Import custom tools and workflow
 from tools import setup_document_tool, setup_sql_tool, get_codex_project_info
 from workflow import RouterOutputAgentWorkflow
+
+
+from llama_index.llms.openai import OpenAI
+
 
 # Apply nest_asyncio to allow running asyncio in Streamlit
 import asyncio
@@ -72,13 +80,302 @@ def reset_chat():
         st.session_state.workflow_needs_update = True
 
 
+#####################################
+# Database Visualization Functions
+#####################################
+def get_database_connection():
+    """Create a database connection"""
+    try:
+        db_path = "city_database.sqlite"
+        if not os.path.exists(db_path):
+            st.error(f"Database file not found: {db_path}")
+            return None
+        
+        engine = create_engine(f"sqlite:///{db_path}")
+        return engine
+    except Exception as e:
+        st.error(f"Error connecting to database: {str(e)}")
+        return None
+
+
+def get_table_data(table_name="city_stats"):
+    """Get data from the specified table"""
+    engine = get_database_connection()
+    if engine is None:
+        return None
+    
+    try:
+        query = f"SELECT * FROM {table_name}"
+        df = pd.read_sql_query(query, engine)
+        return df
+    except Exception as e:
+        st.error(f"Error fetching data: {str(e)}")
+        return None
+
+
+def get_table_schema(table_name="city_stats"):
+    """Get the schema of the specified table"""
+    engine = get_database_connection()
+    if engine is None:
+        return None
+    
+    try:
+        with engine.connect() as conn:
+            result = conn.execute(text(f"PRAGMA table_info({table_name})"))
+            schema_info = result.fetchall()
+            return schema_info
+    except Exception as e:
+        st.error(f"Error fetching schema: {str(e)}")
+        return None
+
+
+def create_population_chart(df):
+    """Create a population chart using Plotly"""
+    if df is None or df.empty:
+        return None
+    
+    # Sort by population for better visualization
+    df_sorted = df.sort_values('population', ascending=False).head(10)
+    
+    fig = px.bar(
+        df_sorted,
+        x='city_name',
+        y='population',
+        title='Top 10 Cities by Population',
+        labels={'city_name': 'City', 'population': 'Population'},
+        color='population',
+        color_continuous_scale='viridis'
+    )
+    
+    fig.update_layout(
+        xaxis_tickangle=-45,
+        height=500,
+        showlegend=False
+    )
+    
+    return fig
+
+
+def create_state_distribution_chart(df):
+    """Create a state distribution chart"""
+    if df is None or df.empty:
+        return None
+    
+    # Count cities per state
+    state_counts = df['state'].value_counts().head(10)
+    
+    fig = px.pie(
+        values=state_counts.values,
+        names=state_counts.index,
+        title='Top 10 States by Number of Cities',
+        hole=0.3
+    )
+    
+    fig.update_layout(height=500)
+    
+    return fig
+
+
+def create_population_scatter(df):
+    """Create a scatter plot of cities by population"""
+    if df is None or df.empty:
+        return None
+    
+    fig = px.scatter(
+        df,
+        x='city_name',
+        y='population',
+        size='population',
+        color='state',
+        title='City Population Distribution',
+        labels={'city_name': 'City', 'population': 'Population', 'state': 'State'},
+        hover_data=['state']
+    )
+    
+    fig.update_layout(
+        xaxis_tickangle=-45,
+        height=500
+    )
+    
+    return fig
+
+
+def render_database_tab():
+    """Render the database visualization tab"""
+    st.header("🗄️ Database Visualization")
+    
+    # Get database data
+    df = get_table_data()
+    schema_info = get_table_schema()
+    
+    if df is None:
+        st.error("Unable to load database data. Please check if the database file exists.")
+        return
+    
+    # Display database info with enhanced metrics
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        st.metric("Total Cities", len(df))
+    with col2:
+        st.metric("Total Population", f"{df['population'].sum():,}")
+    with col3:
+        st.metric("States", df['state'].nunique())
+    with col4:
+        avg_population = int(df['population'].mean())
+        st.metric("Avg Population", f"{avg_population:,}")
+    
+    # Quick stats
+    st.subheader("📈 Quick Statistics")
+    stats_col1, stats_col2 = st.columns(2)
+    
+    with stats_col1:
+        st.write("**Largest Cities:**")
+        top_cities = df.nlargest(5, 'population')[['city_name', 'population', 'state']]
+        for _, row in top_cities.iterrows():
+            st.write(f"• {row['city_name']}, {row['state']}: {row['population']:,}")
+    
+    with stats_col2:
+        st.write("**States with Most Cities:**")
+        state_counts = df['state'].value_counts().head(5)
+        for state, count in state_counts.items():
+            st.write(f"• {state}: {count} cities")
+    
+    # Database Schema Section
+    st.subheader("📋 Database Schema")
+    if schema_info:
+        schema_df = pd.DataFrame(schema_info, columns=['cid', 'name', 'type', 'notnull', 'dflt_value', 'pk'])
+        st.dataframe(schema_df[['name', 'type', 'notnull', 'pk']], use_container_width=True)
+    
+    # Interactive Data Table
+    st.subheader("📊 Interactive Data Table")
+    st.write("Use the table below to explore the city data. You can sort, filter, and search through the data.")
+    
+    # Add search functionality
+    search_term = st.text_input("🔍 Search cities:", placeholder="Enter city name or state...")
+    
+    # Filter data based on search
+    if search_term:
+        filtered_df = df[
+            df['city_name'].str.contains(search_term, case=False, na=False) |
+            df['state'].str.contains(search_term, case=False, na=False)
+        ]
+    else:
+        filtered_df = df
+    
+    # Display filtered data with pagination
+    if not filtered_df.empty:
+        st.write(f"Showing {len(filtered_df)} of {len(df)} cities")
+        
+        # Add sorting options
+        sort_by = st.selectbox("Sort by:", ["city_name", "population", "state"])
+        sort_order = st.selectbox("Order:", ["ascending", "descending"])
+        
+        if sort_order == "descending":
+            filtered_df = filtered_df.sort_values(sort_by, ascending=False)
+        else:
+            filtered_df = filtered_df.sort_values(sort_by, ascending=True)
+        
+        # Display the dataframe with enhanced styling
+        st.dataframe(
+            filtered_df,
+            use_container_width=True,
+            height=400,
+            column_config={
+                "city_name": st.column_config.TextColumn("City Name", width="medium"),
+                "population": st.column_config.NumberColumn("Population", format=","),
+                "state": st.column_config.TextColumn("State", width="medium")
+            }
+        )
+    else:
+        st.warning("No cities found matching your search criteria.")
+    
+    # Charts Section
+    st.subheader("📈 Data Visualizations")
+    
+    # Create tabs for different charts
+    chart_tab1, chart_tab2, chart_tab3 = st.tabs(["Population Chart", "State Distribution", "Population Scatter"])
+    
+    with chart_tab1:
+        fig1 = create_population_chart(df)
+        if fig1:
+            st.plotly_chart(fig1, use_container_width=True)
+        else:
+            st.warning("Unable to create population chart.")
+    
+    with chart_tab2:
+        fig2 = create_state_distribution_chart(df)
+        if fig2:
+            st.plotly_chart(fig2, use_container_width=True)
+        else:
+            st.warning("Unable to create state distribution chart.")
+    
+    with chart_tab3:
+        fig3 = create_population_scatter(df)
+        if fig3:
+            st.plotly_chart(fig3, use_container_width=True)
+        else:
+            st.warning("Unable to create population scatter plot.")
+    
+    # Custom Query Section
+    st.subheader("🔍 Custom SQL Queries")
+    st.write("Run custom SQL queries on the database:")
+    
+    # Predefined queries
+    query_options = {
+        "Select all cities": "SELECT * FROM city_stats",
+        "Top 10 cities by population": "SELECT * FROM city_stats ORDER BY population DESC LIMIT 10",
+        "Cities in California": "SELECT * FROM city_stats WHERE state = 'California'",
+        "Cities with population > 1M": "SELECT * FROM city_stats WHERE population > 1000000",
+        "States and city counts": "SELECT state, COUNT(*) as city_count FROM city_stats GROUP BY state ORDER BY city_count DESC",
+        "Average population by state": "SELECT state, AVG(population) as avg_population FROM city_stats GROUP BY state ORDER BY avg_population DESC"
+    }
+    
+    selected_query = st.selectbox("Choose a predefined query:", list(query_options.keys()))
+    custom_query = st.text_area("Or enter your own SQL query:", value=query_options[selected_query], height=100)
+    
+    if st.button("Run Query"):
+        try:
+            engine = get_database_connection()
+            if engine:
+                result_df = pd.read_sql_query(custom_query, engine)
+                st.success(f"Query executed successfully! Found {len(result_df)} rows.")
+                st.dataframe(result_df, use_container_width=True)
+                
+                # Download results
+                csv = result_df.to_csv(index=False)
+                st.download_button(
+                    label="Download Query Results",
+                    data=csv,
+                    file_name="query_results.csv",
+                    mime="text/csv"
+                )
+        except Exception as e:
+            st.error(f"Error executing query: {str(e)}")
+    
+    # Raw Data Section
+    st.subheader("📄 Raw Data")
+    st.write("Download the complete dataset:")
+    
+    # Add download button
+    csv = df.to_csv(index=False)
+    st.download_button(
+        label="Download CSV",
+        data=csv,
+        file_name="city_stats.csv",
+        mime="text/csv"
+    )
+    
+    # Display raw data
+    st.dataframe(df, use_container_width=True)
+
+
 @st.cache_resource
 def initialize_model(_api_key):
     """Initialize models for LLM and embedding"""
     try:
         # Initialize models for LLM and embedding with OpenRouter
-        # llm = OpenAI(model="gpt-4o-mini", api_key=_api_key)
-        llm = OpenRouter(model="qwen/qwen-turbo", api_key=_api_key)
+        llm = OpenAI(model="gpt-4o-mini", api_key=_api_key)
+        # llm = OpenRouter(model="qwen/qwen-turbo", api_key=_api_key)
         embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-small-en-v1.5")
         return llm, embed_model
     except Exception as e:
@@ -335,119 +632,129 @@ def main():
         else:
             st.warning("Documents: ✗")
 
-    # Chat title and reset button in the same row
-    chat_header_col1, chat_header_col2 = st.columns([6, 1])
-    with chat_header_col1:
-        st.title("RAG + SQL Router 🔗")
-        powered_by_html = """
-            <div style='display: flex; align-items: center; gap: 10px; margin-top: -10px;'>
-                <span style='font-size: 20px; color: #666;'>Powered by</span>
-                <img src="https://docs.llamaindex.ai/en/stable/_static/assets/LlamaSquareBlack.svg" width="40" height="50"> 
-                <span style='font-size: 20px; color: #666;'>and</span>
-                <img src="https://upload.wikimedia.org/wikipedia/commons/7/7d/Milvus-logo-color-small.png" width="100">
-            </div>
-        """
-        st.markdown(powered_by_html, unsafe_allow_html=True)
-    with chat_header_col2:
-        st.button("Reset Chat ↺", on_click=reset_chat)
+    # Main title
+    st.title("RAG + SQL Router 🔗")
+    powered_by_html = """
+        <div style='display: flex; align-items: center; gap: 10px; margin-top: -10px;'>
+            <span style='font-size: 20px; color: #666;'>Powered by</span>
+            <img src="https://docs.llamaindex.ai/en/stable/_static/assets/LlamaSquareBlack.svg" width="40" height="50"> 
+            <span style='font-size: 20px; color: #666;'>and</span>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/7/7d/Milvus-logo-color-small.png" width="100">
+        </div>
+    """
+    st.markdown(powered_by_html, unsafe_allow_html=True)
+    
+    # Create tabs for different sections
+    chat_tab, database_tab = st.tabs(["💬 Chat Interface", "🗄️ Database Visualization"])
+    
+    with chat_tab:
+        # Chat header with reset button
+        chat_header_col1, chat_header_col2 = st.columns([6, 1])
+        with chat_header_col1:
+            st.subheader("Chat Interface")
+        with chat_header_col2:
+            st.button("Reset Chat ↺", on_click=reset_chat)
 
-    # Continue only if LLM is initialized and OpenRouter API key is provided
-    if st.session_state.llm_initialized and st.session_state.openrouter_api_key:
-        # Initialize tools with first tool as SQL tool
-        tools = [setup_sql_tool()]
+        # Continue only if LLM is initialized and OpenRouter API key is provided
+        if st.session_state.llm_initialized and st.session_state.openrouter_api_key:
+            # Initialize tools with first tool as SQL tool
+            tools = [setup_sql_tool()]
 
-        if st.session_state.file_uploaded:
-            file_key = f"{st.session_state.id}-documents"
+            if st.session_state.file_uploaded:
+                file_key = f"{st.session_state.id}-documents"
 
-            if file_key not in st.session_state.file_cache:
-                with st.spinner("Processing documents..."):
-                    # Use the uploaded documents to create a document tool
-                    document_tool = setup_document_tool(
-                        file_dir=st.session_state.temp_dir,
-                        session_id=str(st.session_state.id)
+                if file_key not in st.session_state.file_cache:
+                    with st.spinner("Processing documents..."):
+                        # Use the uploaded documents to create a document tool
+                        document_tool = setup_document_tool(
+                            file_dir=st.session_state.temp_dir,
+                            session_id=str(st.session_state.id)
+                        )
+                        st.session_state.file_cache[file_key] = document_tool
+                    st.success("Documents processed successfully!")
+
+                tools.append(st.session_state.file_cache[file_key])
+
+            # Initialize or update workflow with tools
+            if not st.session_state.workflow or st.session_state.workflow_needs_update:
+                workflow = initialize_workflow(tools)
+                st.session_state.workflow_needs_update = False
+            else:
+                workflow = st.session_state.workflow
+
+            # Chat interface
+            if workflow:
+                # Display chat messages
+                for message in st.session_state.messages:
+                    with st.chat_message(message["role"]):
+                        st.markdown(message["content"])
+
+                # User input at the bottom
+                query = st.chat_input("Ask your question...")
+
+                # Process query if submitted
+                if query:
+                    st.session_state.messages.append({"role": "user", "content": query})
+
+                    # Display user message
+                    with st.chat_message("user"):
+                        st.markdown(query)
+
+                    # Process and show assistant response
+                    with st.chat_message("assistant"):
+                        message_placeholder = st.empty()
+                        message_placeholder.markdown("Thinking...")
+
+                        # Process the query
+                        response = asyncio.run(process_query(query, workflow))
+
+                        # Initialize displayed response
+                        displayed_response = ""
+
+                        # Check if this is already a formatted response
+                        if "**🔧 Tool Used:**" not in response:
+                            # If not formatted, treat as document tool response with high trust score
+                            response = f"**🔧 Tool Used:** `document_tool`\n\n**📝 Response:**\n\n{response}\n\n"
+                            trust_score = random.uniform(80.0, 90.0)
+                            response += f"**🟢 Trust Score:** {trust_score:.1f}%\n\n"
+
+                        # Stream the response line by line to preserve formatting
+                        lines = response.split('\n')
+                        for line in lines:
+                            displayed_response += line + '\n'
+                            message_placeholder.markdown(displayed_response + "▌")
+                            time.sleep(0.01)
+
+                        # Final display without cursor
+                        message_placeholder.markdown(displayed_response.strip())
+
+                    # Add assistant response to chat history
+                    st.session_state.messages.append(
+                        {"role": "assistant", "content": displayed_response.strip()}
                     )
-                    st.session_state.file_cache[file_key] = document_tool
-                st.success("Documents processed successfully!")
-
-            tools.append(st.session_state.file_cache[file_key])
-
-        # Initialize or update workflow with tools
-        if not st.session_state.workflow or st.session_state.workflow_needs_update:
-            workflow = initialize_workflow(tools)
-            st.session_state.workflow_needs_update = False
         else:
-            workflow = st.session_state.workflow
-
-        # Chat interface
-        if workflow:
-            # Display chat messages
-            for message in st.session_state.messages:
-                with st.chat_message(message["role"]):
-                    st.markdown(message["content"])
-
-            # User input at the bottom
-            query = st.chat_input("Ask your question...")
-
-            # Process query if submitted
-            if query:
-                st.session_state.messages.append({"role": "user", "content": query})
-
-                # Display user message
-                with st.chat_message("user"):
-                    st.markdown(query)
-
-                # Process and show assistant response
-                with st.chat_message("assistant"):
-                    message_placeholder = st.empty()
-                    message_placeholder.markdown("Thinking...")
-
-                    # Process the query
-                    response = asyncio.run(process_query(query, workflow))
-
-                    # Initialize displayed response
-                    displayed_response = ""
-
-                    # Check if this is already a formatted response
-                    if "**🔧 Tool Used:**" not in response:
-                        # If not formatted, treat as document tool response with high trust score
-                        response = f"**🔧 Tool Used:** `document_tool`\n\n**📝 Response:**\n\n{response}\n\n"
-                        trust_score = random.uniform(80.0, 90.0)
-                        response += f"**🟢 Trust Score:** {trust_score:.1f}%\n\n"
-
-                    # Stream the response line by line to preserve formatting
-                    lines = response.split('\n')
-                    for line in lines:
-                        displayed_response += line + '\n'
-                        message_placeholder.markdown(displayed_response + "▌")
-                        time.sleep(0.01)
-
-                    # Final display without cursor
-                    message_placeholder.markdown(displayed_response.strip())
-
-                # Add assistant response to chat history
-                st.session_state.messages.append(
-                    {"role": "assistant", "content": displayed_response.strip()}
+            # Application information if requirements not met
+            if not st.session_state.openrouter_api_key:
+                st.error("OpenRouter API Key is required to use this application.")
+                st.markdown(
+                    """
+                    ### Getting Started
+                    1. Enter your OpenRouter API Key in the sidebar
+                    2. The models will initialize automatically once the key is provided
+                    """
                 )
-    else:
-        # Application information if requirements not met
-        if not st.session_state.openrouter_api_key:
-            st.error("OpenRouter API Key is required to use this application.")
-            st.markdown(
-                """
-                ### Getting Started
-                1. Enter your OpenRouter API Key in the sidebar
-                2. The models will initialize automatically once the key is provided
-                """
-            )
-        else:
-            st.error("Models could not be initialized. Please check your API key.")
-            st.markdown(
-                """
-                ### Troubleshooting
-                1. Verify your OpenRouter API key is correct
-                2. Try refreshing the application
-                """
-            )
+            else:
+                st.error("Models could not be initialized. Please check your API key.")
+                st.markdown(
+                    """
+                    ### Troubleshooting
+                    1. Verify your OpenRouter API key is correct
+                    2. Try refreshing the application
+                    """
+                )
+    
+    with database_tab:
+        render_database_tab()
 
 
 if __name__ == "__main__":

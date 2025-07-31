@@ -9,6 +9,7 @@ dependencies = [
     "llama-index>=0.12.52",
     "llama-index-core>=0.12.52.post1",
     "llama-index-embeddings-huggingface>=0.5.5",
+    "llama-index-llms-openai>=0.4.7",
     "llama-index-llms-openrouter>=0.3.2",
     "llama-index-node-parser-docling>=0.3.2",
     "llama-index-readers-docling>=0.3.3",
@@ -20,4 +21,6 @@ dependencies = [
     "sqlalchemy>=2.0.42",
     "streamlit>=1.47.1",
     "torch>=2.7.1",
+    "pandas>=2.0.0",
+    "plotly>=5.0.0",
 ]
