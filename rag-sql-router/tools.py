@@ -29,7 +29,7 @@ def create_codex_project():
             print(
                 "Warning: CODEX_API_KEY not found. Codex validation will be disabled."
             )
-            return None
+            return None, None
 
         # Create a unique identifier for the project
         project_id = str(uuid.uuid4())[:8]  # Using first 8 chars for readability
@@ -38,15 +38,67 @@ def create_codex_project():
         project = codex_client.create_project(name=f"RAG + SQL Router {project_id}")
         access_key = project.create_access_key("default key")
         project = Project.from_access_key(access_key)
-        return project
+        return project, project_id
     except Exception as e:
         print(f"Error creating Codex project: {e}")
-        return None
+        return None, None
 
 
-# Global variables for reuse
+# Global variables for reuse - these will persist across function calls
 docs_query_engine = None
 codex_project = None
+current_session_id = None
+current_project_id = None
+
+
+def get_or_create_codex_project(session_id):
+    """Get existing Codex project or create a new one for the session."""
+    global codex_project, current_session_id, current_project_id
+    
+    # If we have a project and it's for the same session, reuse it
+    if codex_project is not None and current_session_id == session_id:
+        print(f"Reusing existing Codex project for session {session_id}")
+        return codex_project
+    
+    # Create a new project for this session
+    print(f"Creating new Codex project for session {session_id}")
+    codex_project, project_id = create_codex_project()
+    current_session_id = session_id
+    current_project_id = project_id
+    
+    return codex_project
+
+
+def get_codex_project_info():
+    """Get information about the current Codex project for debugging."""
+    global codex_project, current_session_id, current_project_id
+    
+    if codex_project is None:
+        return {
+            "status": "No project created",
+            "session_id": current_session_id,
+            "project_id": None
+        }
+    
+    try:
+        # Get the actual project name using the stored project ID
+        if current_project_id:
+            project_name = f"RAG + SQL Router {current_project_id}"
+        else:
+            project_name = "RAG + SQL Router Project"
+            
+        return {
+            "status": "Active",
+            "session_id": current_session_id,
+            "project_id": "Available",
+            "project_name": project_name
+        }
+    except Exception as e:
+        return {
+            "status": f"Error getting info: {str(e)}",
+            "session_id": current_session_id,
+            "project_id": "Unknown"
+        }
 
 
 def setup_sql_tool():
@@ -77,9 +129,9 @@ def setup_sql_tool():
     return sql_tool
 
 
-def setup_document_tool(file_dir):
+def setup_document_tool(file_dir, session_id=None):
     """Setup document query tool from uploaded documents with Codex validation."""
-    global docs_query_engine, codex_project
+    global docs_query_engine
 
     # Create a reader and load the data
     reader, node_parser = DoclingReader(), MarkdownNodeParser()
@@ -126,8 +178,8 @@ def setup_document_tool(file_dir):
         text_qa_template=qa_template, similarity_top_k=3
     )
 
-    # Initialize Codex project
-    codex_project = create_codex_project()
+    # Get or create Codex project for this session
+    codex_project = get_or_create_codex_project(session_id)
 
     # Define the document query function with Codex validation
     def document_query_tool(query: str):
@@ -141,18 +193,32 @@ def setup_document_tool(file_dir):
         context_str = "\n".join([n.node.text for n in context])
 
         # Step 3: Prepare prompt for Codex validation
-        user_prompt = template.format(context_str=context_str, query_str=query)
+        prompt_template = (
+            "You are a meticulous and accurate document analyst. Your task is to answer the user's question based exclusively on the provided context. "
+            "Follow these rules strictly:\n"
+            "1. Your entire response must be grounded in the facts provided in the 'Context' section. Do not use any prior knowledge.\n"
+            "2. If multiple parts of the context are relevant, synthesize them into a single, coherent answer.\n"
+            "3. If the context does not contain the information needed to answer the question, you must state only: 'The provided context does not contain enough information to answer this question.'\n"
+            "-----------------------------------------\n"
+            "Context: {context}\n"
+            "-----------------------------------------\n"
+            "Question: {query}\n\n"
+            "Answer:"
+        )
+        user_prompt = prompt_template.format(context=context_str, query=query)
         messages = [{"role": "user", "content": user_prompt}]
 
         # Step 4: Validate with Codex (if available)
         if codex_project:
             try:
+                print(f"Validating query with Codex: '{query[:50]}...'")
                 result = codex_project.validate(
                     messages=messages,
                     query=query,
                     context=context_str,
                     response=initial_response,
                 )
+                print(f"Codex validation completed successfully")
 
                 # Step 5: Final response selection
                 fallback_response = "I'm sorry, I couldn't find an answer — can I help with something else?"

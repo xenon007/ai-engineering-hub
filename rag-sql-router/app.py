@@ -16,7 +16,7 @@ from llama_index.llms.openrouter import OpenRouter
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 
 # Import custom tools and workflow
-from tools import setup_document_tool, setup_sql_tool
+from tools import setup_document_tool, setup_sql_tool, get_codex_project_info
 from workflow import RouterOutputAgentWorkflow
 
 # Apply nest_asyncio to allow running asyncio in Streamlit
@@ -254,6 +254,14 @@ def main():
         # Display Codex status
         if st.session_state.codex_api_key:
             st.success("Codex API Key: ✓")
+
+            # Show Codex project debug info
+            if st.session_state.file_uploaded:
+                codex_info = get_codex_project_info()
+                st.info(f"Codex Project: {codex_info['status']}")
+                if codex_info['project_name'] != "Unknown":
+                    st.info(f"Project: {codex_info['project_name']}")
+                    st.info(f"Session: {codex_info['session_id']}")
         else:
             st.warning("Codex API Key: ✗")
 
@@ -353,7 +361,8 @@ def main():
                 with st.spinner("Processing documents..."):
                     # Use the uploaded documents to create a document tool
                     document_tool = setup_document_tool(
-                        file_dir=st.session_state.temp_dir
+                        file_dir=st.session_state.temp_dir,
+                        session_id=str(st.session_state.id)
                     )
                     st.session_state.file_cache[file_key] = document_tool
                 st.success("Documents processed successfully!")
@@ -451,4 +460,3 @@ if __name__ == "__main__":
 
     # Run the main Streamlit app
     main()
-
