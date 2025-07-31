@@ -101,17 +101,23 @@ def get_codex_project_info():
         }
 
 
-def setup_sql_tool():
+def setup_sql_tool(db_path="city_database.sqlite", table_name="city_stats"):
     """Setup SQL query tool for querying city database."""
-    # Setup SQLite database
-    db_path = "city_database.sqlite"
-    engine = create_engine(f"sqlite:///{db_path}")
-    sql_database = SQLDatabase(engine)
+    # Validate database exists
+    if not os.path.exists(db_path):
+        raise FileNotFoundError(f"Database file not found: {db_path}")
+
+    try:
+        engine = create_engine(f"sqlite:///{db_path}")
+        sql_database = SQLDatabase(engine)
+    except Exception as e:
+        print(f"Error setting up SQL database: {e}")
+        raise
 
     # Create SQL query engine
     sql_query_engine = NLSQLTableQueryEngine(
         sql_database=sql_database,
-        tables=["city_stats"],
+        tables=[table_name],
     )
 
     # Create tool for SQL querying
@@ -129,7 +135,7 @@ def setup_sql_tool():
     return sql_tool
 
 
-def setup_document_tool(file_dir, session_id=None):
+def setup_document_tool(file_dir, session_id=None, milvus_uri="http://localhost:19530"):
     """Setup document query tool from uploaded documents with Codex validation."""
     global docs_query_engine
 
@@ -149,7 +155,7 @@ def setup_document_tool(file_dir, session_id=None):
     # Creating a vector index over loaded data
     unique_collection_id = uuid.uuid4().hex
     collection_name = f"rag_with_sql_{unique_collection_id}"
-    vector_store = MilvusVectorStore(uri="http://localhost:19530", dim=384, overwrite=True, collection_name=collection_name)
+    vector_store = MilvusVectorStore(uri=milvus_uri, dim=384, overwrite=True, collection_name=collection_name)
     storage_context = StorageContext.from_defaults(vector_store=vector_store)
     vector_index = VectorStoreIndex.from_documents(
         docs,
@@ -218,7 +224,7 @@ def setup_document_tool(file_dir, session_id=None):
                     context=context_str,
                     response=initial_response,
                 )
-                print(f"Codex validation completed successfully")
+                print("Codex validation completed successfully")
 
                 # Step 5: Final response selection
                 fallback_response = "I'm sorry, I couldn't find an answer — can I help with something else?"

@@ -11,7 +11,6 @@ import streamlit as st
 
 # Import necessary components from llama_index
 from llama_index.core import Settings
-from llama_index.llms.openai import OpenAI
 from llama_index.llms.openrouter import OpenRouter
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 
@@ -172,8 +171,11 @@ async def process_query(query, workflow):
                                     # Update trust_score if it's in the dict
                                     if 'trust_score' in response_dict and trust_score is None:
                                         trust_score = response_dict['trust_score']
-                            except:
+
+                            except (ValueError, SyntaxError, TypeError) as e:
                                 # If parsing fails, keep the original content
+                                if st.session_state.get('verbose', False):
+                                    print(f"Failed to parse response dict: {e}")
                                 pass
                         
                         tool_info = {
@@ -191,7 +193,7 @@ async def process_query(query, workflow):
                     is_doc_tool = tool_info['tool_name'] != 'sql_tool'
                     
                     if is_doc_tool:
-                        formatted_response += f"**🔧 Tool Used:** `document_tool`\n\n"
+                        formatted_response += "**🔧 Tool Used:** `document_tool`\n\n"
                     else:
                         formatted_response += f"**🔧 Tool Used:** `{tool_info['tool_name']}`\n\n"
                     
@@ -453,10 +455,11 @@ if __name__ == "__main__":
     if hasattr(st.session_state, "temp_dir") and os.path.exists(
         st.session_state.temp_dir
     ):
+        import shutil
         try:
-            os.rmdir(st.session_state.temp_dir)
-        except:
-            pass
+            shutil.rmtree(st.session_state.temp_dir, ignore_errors=True)
+        except (OSError, FileNotFoundError) as e:
+            print(f"Failed to clean up temp directory: {e}")
 
     # Run the main Streamlit app
     main()
