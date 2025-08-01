@@ -34,7 +34,7 @@ nest_asyncio.apply()
 
 # Set page configuration
 st.set_page_config(
-    page_title="RAG + SQL Router 🔗",
+    page_title="Text2SQL + RAG hybrid query engine ⚙️ ",
     page_icon="🏙️",
     layout="wide",
 )
@@ -374,8 +374,8 @@ def initialize_model(_api_key):
     """Initialize models for LLM and embedding"""
     try:
         # Initialize models for LLM and embedding with OpenRouter
-        llm = OpenAI(model="gpt-4o-mini", api_key=_api_key)
-        # llm = OpenRouter(model="qwen/qwen-turbo", api_key=_api_key)
+        # llm = OpenAI(model="gpt-4o-mini", api_key=_api_key)
+        llm = OpenRouter(model="qwen/qwen-turbo", api_key=_api_key)
         embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-small-en-v1.5")
         return llm, embed_model
     except Exception as e:
@@ -632,129 +632,136 @@ def main():
         else:
             st.warning("Documents: ✗")
 
-    # Main title
-    st.title("RAG + SQL Router 🔗")
-    powered_by_html = """
-        <div style='display: flex; align-items: center; gap: 10px; margin-top: -10px;'>
-            <span style='font-size: 20px; color: #666;'>Powered by</span>
-            <img src="https://docs.llamaindex.ai/en/stable/_static/assets/LlamaSquareBlack.svg" width="40" height="50"> 
-            <span style='font-size: 20px; color: #666;'>and</span>
-            <img src="https://upload.wikimedia.org/wikipedia/commons/7/7d/Milvus-logo-color-small.png" width="100">
-        </div>
-    """
-    st.markdown(powered_by_html, unsafe_allow_html=True)
+    # Chat title and reset button in the same row
+    chat_header_col1, chat_header_col2 = st.columns([6, 1])
+    with chat_header_col1:
+        st.title("RAG + SQL Router 🔗")
+        powered_by_html = """
+            <div style='display: flex; align-items: center; gap: 10px; margin-top: -10px;'>
+                <span style='font-size: 20px; color: #666;'>Powered by</span>
+                <img src="https://docs.llamaindex.ai/en/stable/_static/assets/LlamaSquareBlack.svg" width="40" height="50"> 
+                <span style='font-size: 20px; color: #666;'>and</span>
+                <img src="https://upload.wikimedia.org/wikipedia/commons/7/7d/Milvus-logo-color-small.png" width="100">
+            </div>
+        """
+        st.markdown(powered_by_html, unsafe_allow_html=True)
+    with chat_header_col2:
+        st.button("Reset Chat ↺", on_click=reset_chat)
     
-    # Create tabs for different sections
-    chat_tab, database_tab = st.tabs(["💬 Chat Interface", "🗄️ Database Visualization"])
+    # Add a small section for database access
+    st.markdown("---")
+    col1, col2 = st.columns([4, 1])
+    with col1:
+        st.markdown("💡 **Tip:** Want to explore the database? Click the button to view city data and run custom queries!")
+    with col2:
+        if st.button("🗄️ View Database"):
+            st.session_state.show_database = True
     
-    with chat_tab:
-        # Chat header with reset button
-        chat_header_col1, chat_header_col2 = st.columns([6, 1])
-        with chat_header_col1:
-            st.subheader("Chat Interface")
-        with chat_header_col2:
-            st.button("Reset Chat ↺", on_click=reset_chat)
+    # Show database visualization if requested
+    if st.session_state.get('show_database', False):
+        with st.expander("🗄️ Database Visualization", expanded=True):
+            render_database_tab()
+            if st.button("Close Database View"):
+                st.session_state.show_database = False
+                st.rerun()
+    
+    # Continue only if LLM is initialized and OpenRouter API key is provided
+    if st.session_state.llm_initialized and st.session_state.openrouter_api_key:
+        # Initialize tools with first tool as SQL tool
+        tools = [setup_sql_tool()]
 
-        # Continue only if LLM is initialized and OpenRouter API key is provided
-        if st.session_state.llm_initialized and st.session_state.openrouter_api_key:
-            # Initialize tools with first tool as SQL tool
-            tools = [setup_sql_tool()]
+        if st.session_state.file_uploaded:
+            file_key = f"{st.session_state.id}-documents"
 
-            if st.session_state.file_uploaded:
-                file_key = f"{st.session_state.id}-documents"
-
-                if file_key not in st.session_state.file_cache:
-                    with st.spinner("Processing documents..."):
-                        # Use the uploaded documents to create a document tool
-                        document_tool = setup_document_tool(
-                            file_dir=st.session_state.temp_dir,
-                            session_id=str(st.session_state.id)
-                        )
-                        st.session_state.file_cache[file_key] = document_tool
-                    st.success("Documents processed successfully!")
-
-                tools.append(st.session_state.file_cache[file_key])
-
-            # Initialize or update workflow with tools
-            if not st.session_state.workflow or st.session_state.workflow_needs_update:
-                workflow = initialize_workflow(tools)
-                st.session_state.workflow_needs_update = False
-            else:
-                workflow = st.session_state.workflow
-
-            # Chat interface
-            if workflow:
-                # Display chat messages
-                for message in st.session_state.messages:
-                    with st.chat_message(message["role"]):
-                        st.markdown(message["content"])
-
-                # User input at the bottom
-                query = st.chat_input("Ask your question...")
-
-                # Process query if submitted
-                if query:
-                    st.session_state.messages.append({"role": "user", "content": query})
-
-                    # Display user message
-                    with st.chat_message("user"):
-                        st.markdown(query)
-
-                    # Process and show assistant response
-                    with st.chat_message("assistant"):
-                        message_placeholder = st.empty()
-                        message_placeholder.markdown("Thinking...")
-
-                        # Process the query
-                        response = asyncio.run(process_query(query, workflow))
-
-                        # Initialize displayed response
-                        displayed_response = ""
-
-                        # Check if this is already a formatted response
-                        if "**🔧 Tool Used:**" not in response:
-                            # If not formatted, treat as document tool response with high trust score
-                            response = f"**🔧 Tool Used:** `document_tool`\n\n**📝 Response:**\n\n{response}\n\n"
-                            trust_score = random.uniform(80.0, 90.0)
-                            response += f"**🟢 Trust Score:** {trust_score:.1f}%\n\n"
-
-                        # Stream the response line by line to preserve formatting
-                        lines = response.split('\n')
-                        for line in lines:
-                            displayed_response += line + '\n'
-                            message_placeholder.markdown(displayed_response + "▌")
-                            time.sleep(0.01)
-
-                        # Final display without cursor
-                        message_placeholder.markdown(displayed_response.strip())
-
-                    # Add assistant response to chat history
-                    st.session_state.messages.append(
-                        {"role": "assistant", "content": displayed_response.strip()}
+            if file_key not in st.session_state.file_cache:
+                with st.spinner("Processing documents..."):
+                    # Use the uploaded documents to create a document tool
+                    document_tool = setup_document_tool(
+                        file_dir=st.session_state.temp_dir,
+                        session_id=str(st.session_state.id)
                     )
+                    st.session_state.file_cache[file_key] = document_tool
+                st.success("Documents processed successfully!")
+
+            tools.append(st.session_state.file_cache[file_key])
+
+        # Initialize or update workflow with tools
+        if not st.session_state.workflow or st.session_state.workflow_needs_update:
+            workflow = initialize_workflow(tools)
+            st.session_state.workflow_needs_update = False
         else:
-            # Application information if requirements not met
-            if not st.session_state.openrouter_api_key:
-                st.error("OpenRouter API Key is required to use this application.")
-                st.markdown(
-                    """
-                    ### Getting Started
-                    1. Enter your OpenRouter API Key in the sidebar
-                    2. The models will initialize automatically once the key is provided
-                    """
+            workflow = st.session_state.workflow
+
+        # Chat interface
+        if workflow:
+            # Display chat messages
+            for message in st.session_state.messages:
+                with st.chat_message(message["role"]):
+                    st.markdown(message["content"])
+
+            # User input at the bottom
+            query = st.chat_input("Ask your question...")
+
+            # Process query if submitted
+            if query:
+                st.session_state.messages.append({"role": "user", "content": query})
+
+                # Display user message
+                with st.chat_message("user"):
+                    st.markdown(query)
+
+                # Process and show assistant response
+                with st.chat_message("assistant"):
+                    message_placeholder = st.empty()
+                    message_placeholder.markdown("Thinking...")
+
+                    # Process the query
+                    response = asyncio.run(process_query(query, workflow))
+
+                    # Initialize displayed response
+                    displayed_response = ""
+
+                    # Check if this is already a formatted response
+                    if "**🔧 Tool Used:**" not in response:
+                        # If not formatted, treat as document tool response with high trust score
+                        response = f"**🔧 Tool Used:** `document_tool`\n\n**📝 Response:**\n\n{response}\n\n"
+                        trust_score = random.uniform(80.0, 90.0)
+                        response += f"**🟢 Trust Score:** {trust_score:.1f}%\n\n"
+
+                    # Stream the response line by line to preserve formatting
+                    lines = response.split('\n')
+                    for line in lines:
+                        displayed_response += line + '\n'
+                        message_placeholder.markdown(displayed_response + "▌")
+                        time.sleep(0.01)
+
+                    # Final display without cursor
+                    message_placeholder.markdown(displayed_response.strip())
+
+                # Add assistant response to chat history
+                st.session_state.messages.append(
+                    {"role": "assistant", "content": displayed_response.strip()}
                 )
-            else:
-                st.error("Models could not be initialized. Please check your API key.")
-                st.markdown(
-                    """
-                    ### Troubleshooting
-                    1. Verify your OpenRouter API key is correct
-                    2. Try refreshing the application
-                    """
-                )
-    
-    with database_tab:
-        render_database_tab()
+    else:
+        # Application information if requirements not met
+        if not st.session_state.openrouter_api_key:
+            st.error("OpenRouter API Key is required to use this application.")
+            st.markdown(
+                """
+                ### Getting Started
+                1. Enter your OpenRouter API Key in the sidebar
+                2. The models will initialize automatically once the key is provided
+                """
+            )
+        else:
+            st.error("Models could not be initialized. Please check your API key.")
+            st.markdown(
+                """
+                ### Troubleshooting
+                1. Verify your OpenRouter API key is correct
+                2. Try refreshing the application
+                """
+            )
 
 
 if __name__ == "__main__":
