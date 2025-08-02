@@ -38,12 +38,13 @@ streamlit run app.py
 
 ## Usage
 
-1. Enter a GitHub repository URL in the sidebar
-2. Click "Ingest Repository" to load the repository context
-3. Enter your code generation prompt in the chat
-4. View the generated code from both models side by side
-5. Click on "Evaluate Code" to evaluate code using DeepEval
-6. View the evaluation metrics comparing both models' performance
+1. Select the models you want to compare from the dropdown menu
+2. Enter a GitHub repository URL in the sidebar
+3. Click "Ingest Repository" to load the repository context
+4. Enter your code generation prompt in the chat
+5. View the generated code from both models side by side
+6. Click on "Evaluate Code" to evaluate code using DeepEval
+7. View the evaluation metrics comparing both models' performance
 
 ## Evaluation Metrics
 
