@@ -31,6 +31,10 @@ def evaluate_code(generated_code: str, reference_code: str = None):
             }
     """
     try:
+        # Validate input
+        if not generated_code or not generated_code.strip():
+            raise ValueError("Generated code cannot be empty")
+     
         # Build the context string that includes both actual and expected code
         context = f"ACTUAL_CODE:\n```\n{generated_code}\n```"
         if reference_code:

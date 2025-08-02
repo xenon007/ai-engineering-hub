@@ -267,8 +267,15 @@ async def handle_chat_input(prompt: str):
                 process_model1_stream(model1_container),
                 process_model2_stream(model2_container),
             )
+    
+            # Check if either result is an exception
+            if isinstance(final_model1_response, Exception):
+                final_model1_response = f"Error: {str(final_model1_response)}"
+            if isinstance(final_model2_response, Exception):
+                final_model2_response = f"Error: {str(final_model2_response)}"
+        
         except Exception as e:
-            st.error(f"Error during model response generation: {str(e)}")
+            st.error(f"Critical error during model response generation: {str(e)}")
             final_model1_response = "Error: Failed to generate response"
             final_model2_response = "Error: Failed to generate response"
 
