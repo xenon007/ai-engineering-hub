@@ -51,8 +51,8 @@ if "reference_code" not in st.session_state:
     st.session_state.reference_code = None
 if "selected_models" not in st.session_state:
     st.session_state.selected_models = {
-        "model1": "Claude Sonnet 4",
-        "model2": "Qwen3-Coder",
+        "model1": None,
+        "model2": None,
     }
 if "last_generated_code" not in st.session_state:
     st.session_state.last_generated_code = {"model1": None, "model2": None}
@@ -128,11 +128,6 @@ if (
     # Clear previous results when models change
     st.session_state.last_generated_code = {"model1": None, "model2": None}
     st.session_state.evaluation_results = {"model1": None, "model2": None}
-    # Use st.rerun() carefully - only when necessary
-    if st.session_state.get("_models_changed", False):
-        st.rerun()
-    else:
-        st.session_state["_models_changed"] = True
 
 with st.sidebar:
     st.title("Configuration")
@@ -267,12 +262,6 @@ async def handle_chat_input(prompt: str):
                 process_model1_stream(model1_container),
                 process_model2_stream(model2_container),
             )
-    
-            # Check if either result is an exception
-            if isinstance(final_model1_response, Exception):
-                final_model1_response = f"Error: {str(final_model1_response)}"
-            if isinstance(final_model2_response, Exception):
-                final_model2_response = f"Error: {str(final_model2_response)}"
         
         except Exception as e:
             st.error(f"Critical error during model response generation: {str(e)}")
