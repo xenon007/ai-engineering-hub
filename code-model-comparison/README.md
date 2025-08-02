@@ -43,7 +43,7 @@ streamlit run app.py
 3. Click "Ingest Repository" to load the repository context
 4. Enter your code generation prompt in the chat
 5. View the generated code from both models side by side
-6. Click on "Evaluate Code" to evaluate code using DeepEval
+6. Click on "Evaluate Code" to evaluate code using Opik
 7. View the evaluation metrics comparing both models' performance
 
 ## Evaluation Metrics
