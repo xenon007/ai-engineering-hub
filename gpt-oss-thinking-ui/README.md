@@ -1,7 +1,5 @@
 # Run GPT-OSS Locally with Thinking UI 🧠
 
-**Run GPT-OSS:20B completely locally using Ollama** with a beautiful Streamlit interface that shows the model's **thinking process** in real-time.
-
 Experience the power of GPT-OSS reasoning locally - see exactly how the model thinks through problems before giving you answers.
 
 ## Why This Matters
