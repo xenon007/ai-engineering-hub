@@ -36,6 +36,8 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+
+
 # Initialize session state
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
@@ -48,6 +50,8 @@ if "selected_models" not in st.session_state:
     }
 if "last_generated_response" not in st.session_state:
     st.session_state.last_generated_response = {"model1": None, "model2": None}
+if "last_thinking_content" not in st.session_state:
+    st.session_state.last_thinking_content = {"model1": None, "model2": None}
 if "evaluation_results" not in st.session_state:
     st.session_state.evaluation_results = {"model1": None, "model2": None}
 
@@ -79,11 +83,11 @@ if not all_models:
 default_model1 = st.session_state.selected_models["model1"]
 default_model2 = st.session_state.selected_models["model2"]
 
-# If default models are not in available models, use first two available
+# If default models are not in available models, use first available
 if default_model1 not in all_models:
-    default_model1 = all_models[0] if all_models else "Claude Sonnet 4"
+    default_model1 = all_models[0] if all_models else "GPT-oss"
 if default_model2 not in all_models:
-    default_model2 = all_models[1] if len(all_models) > 1 else all_models[0]
+    default_model2 = all_models[0] if all_models else "GPT-oss"
 
 # Update session state if defaults changed
 if (
@@ -119,6 +123,7 @@ if (
     st.session_state.selected_models = {"model1": model1, "model2": model2}
     # Clear previous results when models change
     st.session_state.last_generated_response = {"model1": None, "model2": None}
+    st.session_state.last_thinking_content = {"model1": None, "model2": None}
     st.session_state.evaluation_results = {"model1": None, "model2": None}
 
 with st.sidebar:
@@ -178,59 +183,85 @@ async def handle_chat_input(prompt: str):
             st.write(f"##### {st.session_state.selected_models['model2']}")
             model2_container = st.empty()
 
-        model1_gen, model2_gen = await get_parallel_responses(
-            prompt,
-            st.session_state.selected_models["model1"],
-            st.session_state.selected_models["model2"],
-        )
+        response1_gen, response2_gen = await get_parallel_responses(prompt)
 
-        async def process_model1_stream(container):
-            response_text = ""
-            try:
-                async for chunk in model1_gen:
-                    response_text += chunk
-                    container.markdown(response_text)
-            except Exception as e:
-                error_text = f"Error processing stream: {str(e)}"
-                container.markdown(error_text)
-                response_text = error_text
-            return response_text
+        async def process_response1(container):
+            result = await response1_gen
+            
+            content = result.get("content", "")
+            reasoning = result.get("reasoning", "")
+            
+            # Debug prints to see what we're getting
+            print(f"DEBUG - Model 1 Content: {repr(content)}")
+            print(f"DEBUG - Model 1 Reasoning: {repr(reasoning)}")
+            print(f"DEBUG - Has reasoning: {bool(reasoning and reasoning.strip())}")
+            
+            # Display in container
+            container.empty()  # Clear first
+            with container.container():
+                # Reasoning dropdown first (above final answer)
+                if reasoning and reasoning.strip():
+                    with st.expander("🧠 Thinking process", expanded=False):
+                        st.markdown(reasoning)
+                    st.markdown("**Final Answer:**")
+                    st.session_state.last_thinking_content["model1"] = reasoning
+                
+                # Final answer
+                st.markdown(content)
+            
+            return content
+        
+        async def process_response2(container):
+            result = await response2_gen
+            
+            content = result.get("content", "")
+            reasoning = result.get("reasoning", "")
+            
+            # Debug prints to see what we're getting
+            print(f"DEBUG - Model 2 Content: {repr(content)}")
+            print(f"DEBUG - Model 2 Reasoning: {repr(reasoning)}")
+            print(f"DEBUG - Has reasoning: {bool(reasoning and reasoning.strip())}")
+            
+            # Display in container
+            container.empty()  # Clear first
+            with container.container():
+                # Reasoning dropdown first (above final answer)
+                if reasoning and reasoning.strip():
+                    with st.expander("🧠 Thinking process", expanded=False):
+                        st.markdown(reasoning)
+                    st.markdown("**Final Answer:**")
+                    st.session_state.last_thinking_content["model2"] = reasoning
+                
+                # Final answer
+                st.markdown(content)
+            
+            return content
 
-        async def process_model2_stream(container):
-            response_text = ""
-            try:
-                async for chunk in model2_gen:
-                    response_text += chunk
-                    container.markdown(response_text)
-            except Exception as e:
-                error_text = f"Error processing stream: {str(e)}"
-                container.markdown(error_text)
-                response_text = error_text
-            return response_text
-
-        # Run both streams concurrently
+        # Run both responses concurrently
         try:
-            final_model1_response, final_model2_response = await asyncio.gather(
-                process_model1_stream(model1_container),
-                process_model2_stream(model2_container),
+            final_response1, final_response2 = await asyncio.gather(
+                process_response1(model1_container),
+                process_response2(model2_container),
             )
         
         except Exception as e:
-            st.error(f"Critical error during model response generation: {str(e)}")
-            final_model1_response = "Error: Failed to generate response"
-            final_model2_response = "Error: Failed to generate response"
+            st.error(f"Critical error during response generation: {str(e)}")
+            final_response1 = "Error: Failed to generate response"
+            final_response2 = "Error: Failed to generate response"
 
         message = {
             "role": "assistant",
             "content": "",
-            "model1_response": final_model1_response,
-            "model2_response": final_model2_response,
+            "model1_response": final_response1,
+            "model2_response": final_response2,
+            "model1_thinking": st.session_state.last_thinking_content.get("model1", ""),
+            "model2_thinking": st.session_state.last_thinking_content.get("model2", ""),
             "model1_name": st.session_state.selected_models["model1"],
             "model2_name": st.session_state.selected_models["model2"],
         }
         st.session_state.chat_history.append(message)
-        st.session_state.last_generated_response["model1"] = final_model1_response
-        st.session_state.last_generated_response["model2"] = final_model2_response
+        st.session_state.last_generated_response["model1"] = final_response1
+        st.session_state.last_generated_response["model2"] = final_response2
 
 
 # Display chat history
@@ -242,10 +273,22 @@ for message in st.session_state.chat_history:
         with col1:
             model1_name = message.get("model1_name", "Model 1")
             st.write(f"##### {model1_name}")
+            model1_thinking = message.get("model1_thinking", "")
+            # Display thinking content in expander within this column
+            if model1_thinking and model1_thinking.strip():
+                with st.expander(f"🧠 Thinking process", expanded=False):
+                    st.markdown(model1_thinking)
+                st.markdown("**Final Answer:**")
             st.markdown(message["model1_response"])
         with col2:
             model2_name = message.get("model2_name", "Model 2")
             st.write(f"##### {model2_name}")
+            model2_thinking = message.get("model2_thinking", "")
+            # Display thinking content in expander within this column
+            if model2_thinking and model2_thinking.strip():
+                with st.expander(f"🧠 Thinking process", expanded=False):
+                    st.markdown(model2_thinking)
+                st.markdown("**Final Answer:**")
             st.markdown(message["model2_response"])
 
 if prompt := st.chat_input("What reasoning question would you like to ask?"):
