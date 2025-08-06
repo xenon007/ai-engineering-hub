@@ -6,21 +6,25 @@ from litellm import acompletion
 # Available models
 AVAILABLE_MODELS = {
     "GPT-oss": "openrouter/openai/gpt-oss-20b",
+    "Qwen3-Thinking": "openrouter/qwen/qwen3-235b-a22b-thinking-2507",
 }
 
 
-async def get_model_response_async(prompt: str):
+async def get_model_response_async(prompt: str, model_name: str = "GPT-oss"):
     """
-    Simple function to get response from GPT-OSS with reasoning tokens.
+    Get response from reasoning models with reasoning tokens.
     Fetches complete response first, then returns content and reasoning.
     """
     # Use the user prompt directly - let reasoning tokens handle the thinking
     messages = [{"role": "user", "content": prompt}]
+    
+    # Get model mapping
+    model_path = AVAILABLE_MODELS.get(model_name, "openrouter/openai/gpt-oss-20b")
 
     try:
         # Get complete response with reasoning first
         response = await acompletion(
-            model="openrouter/openai/gpt-oss-20b",
+            model=model_path,
             messages=messages,
             api_key=os.getenv("OPENROUTER_API_KEY"),
             max_tokens=2000,
@@ -55,14 +59,14 @@ async def get_model_response_async(prompt: str):
         return {"content": error_msg, "reasoning": ""}
 
 
-async def get_parallel_responses(prompt: str):
+async def get_parallel_responses(prompt: str, model1: str, model2: str):
     """
-    Get two parallel responses from GPT-OSS for comparison.
+    Get two parallel responses from selected models for comparison.
     Returns two separate responses to the same prompt.
     """
     # Make two independent calls to get different responses
-    response1 = get_model_response_async(prompt)
-    response2 = get_model_response_async(prompt)
+    response1 = get_model_response_async(prompt, model1)
+    response2 = get_model_response_async(prompt, model2)
     
     return response1, response2
 

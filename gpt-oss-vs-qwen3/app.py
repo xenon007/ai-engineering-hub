@@ -183,7 +183,11 @@ async def handle_chat_input(prompt: str):
             st.write(f"##### {st.session_state.selected_models['model2']}")
             model2_container = st.empty()
 
-        response1_gen, response2_gen = await get_parallel_responses(prompt)
+        response1_gen, response2_gen = await get_parallel_responses(
+            prompt,
+            st.session_state.selected_models["model1"],
+            st.session_state.selected_models["model2"]
+        )
 
         async def process_response1(container):
             result = await response1_gen
