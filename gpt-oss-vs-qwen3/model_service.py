@@ -5,8 +5,9 @@ from litellm import acompletion
 
 # Available models
 AVAILABLE_MODELS = {
-    "GPT-oss": "openrouter/openai/gpt-oss-20b",
+    "GPT-oss-20B": "openrouter/openai/gpt-oss-20b",
     "Qwen3-Thinking": "openrouter/qwen/qwen3-235b-a22b-thinking-2507",
+    "GPT-oss-120B": "openrouter/openai/gpt-oss-120b",
 }
 
 
