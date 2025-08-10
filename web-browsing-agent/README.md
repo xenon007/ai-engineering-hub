@@ -44,10 +44,21 @@ Pull the required model:
 ollama pull gpt-oss
 ```
 
+### Install Playwright
+
+Install Playwright for browser automation from the official website: [Playwright](https://playwright.dev/docs/intro).
+
 ### Install Dependencies
 
 ```bash
 uv sync
+source .venv/bin/activate
+```
+
+This command will install all the required dependencies for the project. Additionally, make sure to install the necessary browser binaries by running:
+
+```bash
+playwright install
 ```
 
 ## Run CrewAI Agentic Workflow
