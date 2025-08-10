@@ -65,7 +65,7 @@ playwright install
 
 To run the CrewAI flow, execute the following command:
 
-```python
+```bash
 python flow.py
 ```
 
