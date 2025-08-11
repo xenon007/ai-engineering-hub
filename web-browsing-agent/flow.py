@@ -1,4 +1,5 @@
 from typing import Dict, Any
+from dotenv import load_dotenv
 from pydantic import BaseModel
 from crewai import Agent, Task, Crew
 from crewai import LLM
@@ -7,10 +8,12 @@ from crewai.flow.flow import Flow, start, listen
 from stagehand_tool import browser_automation
 
 
+load_dotenv()
+
 # Define our LLMs for providing to agents
-planner_llm = LLM(model="openai/gpt-4o")
+planner_llm = LLM(model="ollama/gpt-oss")
 automation_llm = LLM(model="openai/gpt-4")
-response_llm = LLM(model="openai/gpt-4")
+response_llm = LLM(model="ollama/gpt-oss")
 
 
 @tool("Stagehand Browser Tool")
@@ -64,7 +67,7 @@ class BrowserAutomationFlow(Flow[BrowserAutomationFlowState]):
         plan_task = Task(
             description=f"Analyze the following user query and determine the website url and the task description: '{inputs['query']}'.",
             agent=planner_agent,
-            output_json=AutomationPlan,
+            output_pydantic=AutomationPlan,
             expected_output=(
                 "A JSON object with the following format:\n"
                 "{\n"
@@ -78,7 +81,7 @@ class BrowserAutomationFlow(Flow[BrowserAutomationFlowState]):
         result = crew.kickoff()
 
         # Add a fallback check to ensure we always have a valid website URL
-        website_url = result["website_url"]
+        website_url = result.pydantic.website_url
         if not website_url or website_url.lower() in ["", "none", "null", "n/a"]:
             result["website_url"] = "https://www.google.com"
 
@@ -143,11 +146,8 @@ class BrowserAutomationFlow(Flow[BrowserAutomationFlowState]):
 # Usage example
 async def main():
     flow = BrowserAutomationFlow()
-    result = await flow.kickoff_async(
-        inputs={
-            "query": "Extract the top contributor's username from this GitHub repository: https://github.com/browserbase/stagehand"
-        }
-    )
+    flow.state.query = "Extract the top contributor's username from this GitHub repository: https://github.com/browserbase/stagehand"
+    result = await flow.kickoff_async()
 
     print(f"\n{'='*50}")
     print(f"FINAL RESULT")
