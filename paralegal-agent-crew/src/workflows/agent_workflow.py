@@ -1,10 +1,11 @@
 from typing import Optional, Any
 from loguru import logger
-from firecrawl import FirecrawlApp
-from crewai.flow.flow import Flow, start, listen, router, or_
 from crewai import LLM
+from crewai.flow.flow import Flow, start, listen, router, or_
+from pydantic import BaseModel
 
 from .events import RetrieveEvent, EvaluateEvent, WebSearchEvent, SynthesizeEvent
+from src.tools.firecrawl_search_tool import FirecrawlSearchTool
 from src.retrieval.retriever_rerank import Retriever
 from src.generation.rag import RAG
 from config.settings import settings
@@ -70,7 +71,12 @@ INSTRUCTIONS:
 SYNTHESIZED RESPONSE:"""
 )
 
-class ParalegalAgentWorkflow(Flow):
+# Define flow state
+class ParalegalAgentState(BaseModel):
+    query: str = ""
+    top_k: Optional[int] = 3
+
+class ParalegalAgentWorkflow(Flow[ParalegalAgentState]):
     """Paralegal Agent Workflow with router and web search fallback using CrewAI Flows."""
 
     def __init__(
@@ -88,21 +94,11 @@ class ParalegalAgentWorkflow(Flow):
         self.openai_api_key = openai_api_key or settings.openai_api_key
         self.llm = LLM(model=settings.llm_model, api_key=self.openai_api_key, temperature=0.1)
 
-        self.firecrawl_api_key = firecrawl_api_key or settings.firecrawl_api_key
-        self.firecrawl = FirecrawlApp(api_key=self.firecrawl_api_key) if self.firecrawl_api_key else None
-
-        if not self.firecrawl:
-            logger.warning("Firecrawl API key not provided. Web search will be disabled.")
-
     @start()
     def retrieve(self) -> RetrieveEvent:
-        """Retrieve relevant documents from vector database using state inputs."""
-        state_obj = getattr(self, "state", {})
-        query = getattr(state_obj, "query", None) if hasattr(state_obj, "__dict__") else state_obj.get("query")
-        top_k = getattr(state_obj, "top_k", None) if hasattr(state_obj, "__dict__") else state_obj.get("top_k")
-
-        if top_k is None:
-            top_k = settings.top_k
+        """Retrieve relevant documents from vector database"""
+        query = self.state.query
+        top_k = self.state.top_k
 
         if not query:
             raise ValueError("Query is required")
@@ -115,7 +111,7 @@ class ParalegalAgentWorkflow(Flow):
 
     @listen(retrieve)
     def generate_rag_response(self, ev: RetrieveEvent) -> EvaluateEvent:
-        """Generate initial RAG response."""
+        """Generate initial RAG response"""
         query = ev.query
         retrieved_nodes = ev.retrieved_nodes
 
@@ -132,7 +128,7 @@ class ParalegalAgentWorkflow(Flow):
 
     @router(generate_rag_response)
     def evaluate_response(self, ev: EvaluateEvent) -> str:
-        """Evaluate RAG response quality and route accordingly."""
+        """Evaluate RAG response quality and route accordingly"""
         rag_response = ev.rag_response
         query = ev.query
         
@@ -147,7 +143,7 @@ class ParalegalAgentWorkflow(Flow):
 
     @listen("web_search")
     def perform_web_search(self, ev: EvaluateEvent | WebSearchEvent) -> SynthesizeEvent:
-        """Perform web search for additional information."""
+        """Perform web search if insufficient information from RAG response"""
         query = ev.query
         rag_response = ev.rag_response
         retrieved_nodes = getattr(ev, "retrieved_nodes", [])
@@ -155,43 +151,14 @@ class ParalegalAgentWorkflow(Flow):
         logger.info("Performing web search")
         
         search_results = ""
-        
-        if self.firecrawl:
-            try:
-                optimization_prompt = QUERY_OPTIMIZATION_TEMPLATE.format(query=query)
-                optimized_query = (self.llm.call(optimization_prompt) or query).strip()
-                
-                logger.info(f"Optimized query: {optimized_query}")
-                
-                search_response = self.firecrawl.search(optimized_query, limit=5)
-                results_list = getattr(search_response, "data", None)
-
-                search_contents: list[str] = []
-                if isinstance(results_list, list) and results_list:
-                    for result in results_list[:3]:  # Use top 3 results
-                        if not isinstance(result, dict):
-                            continue
-                        url = result.get("url", "No URL")
-                        title = result.get("title", "No title")
-                        description = (result.get("description") or "").strip()
-                        snippet = description[:1000] if description else "[no description available]"
-                        search_contents.append(
-                            f"Title: {title}\nURL: {url}\nContent: {snippet}"
-                        )
-
-                if search_contents:
-                    search_results = "\n\n---\n\n".join(search_contents)
-                    logger.info(f"Retrieved {len(search_contents)} web search results")
-                else:
-                    logger.warning("No search results found")
-                    search_results = "No relevant web search results found."
-                    
-            except Exception as e:
-                logger.error(f"Web search failed: {e}")
-                search_results = "Web search unavailable due to technical issues."
-        else:
-            logger.warning("Web search skipped - Firecrawl not configured")
-            search_results = "Web search unavailable - API not configured."
+        try:
+            optimization_prompt = QUERY_OPTIMIZATION_TEMPLATE.format(query=query)
+            optimized_query = (self.llm.call(optimization_prompt) or query).strip()
+            search_results = FirecrawlSearchTool().run(query=optimized_query, limit=3)
+            logger.info("Web search completed via custom tool")
+        except Exception as e:
+            logger.error(f"Web search failed: {e}")
+            search_results = "Web search unavailable due to technical issues."
         
         return SynthesizeEvent(
             rag_response=rag_response,
@@ -203,7 +170,7 @@ class ParalegalAgentWorkflow(Flow):
 
     @listen(or_("synthesize", "perform_web_search"))
     def synthesize_response(self, ev: EvaluateEvent | SynthesizeEvent) -> dict:
-        """Synthesize final response from RAG and web search results."""
+        """Synthesize final response from RAG and web search results"""
         rag_response = ev.rag_response
         web_results = getattr(ev, "web_search_results", "") or ""
         query = ev.query
@@ -253,8 +220,8 @@ class ParalegalAgentWorkflow(Flow):
         """
         try:
             # Kick off the CrewAI flow asynchronously with runtime inputs
-            final = await self.kickoff_async(inputs={"query": query, "top_k": top_k})
-            return final if isinstance(final, dict) else {"answer": str(final), "query": query}
+            result = await self.kickoff_async(inputs={"query": query, "top_k": top_k})
+            return result if isinstance(result, dict) else {"answer": str(result), "query": query}
         except Exception as e:
             logger.error(f"Workflow execution failed: {e}")
             return {
