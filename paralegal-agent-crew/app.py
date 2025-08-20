@@ -27,7 +27,7 @@ from config.settings import settings
 load_dotenv()
 
 # Set up page configuration
-st.set_page_config(page_title="Paralegal Agent Demo", layout="wide")
+st.set_page_config(page_title="Paralegal AI Assistant", layout="wide")
 
 # Initialize session state variables
 if "id" not in st.session_state:
@@ -205,14 +205,15 @@ def cleanup_resources():
 with st.sidebar:
     st.header("🔧 Configuration")
     
-    st.subheader("API Keys")
-    openai_key = st.text_input("OpenAI API Key", type="password", value=os.getenv("OPENAI_API_KEY", ""))
-    firecrawl_key = st.text_input("Firecrawl API Key (Optional)", type="password", value=os.getenv("FIRECRAWL_API_KEY", ""))
+    # st.subheader("API Keys")
+    # openai_key = st.text_input("OpenAI API Key", type="password", value=os.getenv("OPENAI_API_KEY", ""))
+    ollama_model = st.text_input("Ollama Model", value="gpt-oss:20b")
+    firecrawl_key = st.text_input("Firecrawl API Key", type="password", value=os.getenv("FIRECRAWL_API_KEY", ""))
     
-    if openai_key:
-        os.environ["OPENAI_API_KEY"] = openai_key
-        st.success("✅ OpenAI API Key set!")
-    
+    # if openai_key:
+        # os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
+        # st.success("✅ OpenAI API Key set!")
+    os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
     if firecrawl_key:
         os.environ["FIRECRAWL_API_KEY"] = firecrawl_key
         st.success("✅ Firecrawl API Key set!")
@@ -225,7 +226,7 @@ with st.sidebar:
     
     uploaded_file = st.file_uploader("Choose your PDF file", type="pdf")
     
-    if uploaded_file and openai_key:
+    if uploaded_file:
         try:
             with tempfile.TemporaryDirectory() as temp_dir:
                 file_path = os.path.join(temp_dir, uploaded_file.name)
@@ -252,8 +253,10 @@ with st.sidebar:
         except Exception as e:
             st.error(f"An error occurred: {e}")
     
-    elif uploaded_file and not openai_key:
-        st.warning("⚠️ Please enter your OpenAI API key first!")
+    # elif uploaded_file and not openai_key:
+    #     st.warning("⚠️ Please enter your OpenAI API key first!")
+    elif uploaded_file:
+        st.info("📁 Please upload a PDF to continue")
     
     # Cleanup button
     st.markdown("---")
@@ -265,8 +268,32 @@ with st.sidebar:
 col1, col2 = st.columns([6, 1])
 
 with col1:
-    st.markdown("<h1 style='color: #2E86AB;'>🚀 Enhanced RAG Pipeline</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='color: #A23B72; font-size: 18px;'>Multi-Agent Workflow with Router & Web Search</p>", unsafe_allow_html=True)
+    st.markdown('''
+        <h1 style='color: #2E86AB; margin-bottom: 10px;'>
+            ⚖️ Paralegal AI assistant
+        </h1>
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 20px;">
+            <span style='color: #A23B72; font-size: 16px;'>Powered by</span>
+            <div style="display: flex; align-items: center; gap: 20px;">
+                <a href="#" style="display: inline-block; vertical-align: middle;">
+                    <img src="https://images.seeklogo.com/logo-png/61/2/crew-ai-logo-png_seeklogo-619843.png" 
+                         alt="CrewAI" style="height: 100px;">
+                </a>
+                <a href="#" style="display: inline-block; vertical-align: middle;">
+                    <img src="https://milvus.io/images/layout/milvus-logo.svg" 
+                         alt="Milvus" style="height: 32px;">
+                </a>
+                <a href="#" style="display: inline-block; vertical-align: middle;">
+                    <img src="https://i.ibb.co/VcsfddTr/logo-dark.png" 
+                         alt="Firecrawl" style="height: 45px;">
+                </a>
+                <a href="#" style="display: inline-block; vertical-align: middle;">
+                    <img src="https://i.ibb.co/wt57zN1/ollama.png" 
+                         alt="Ollama" style="height: 48px;">
+                </a>
+            </div>
+        </div>
+    ''', unsafe_allow_html=True)
 
 with col2:
     if st.button("Clear Chat ↺", on_click=reset_chat):
@@ -283,14 +310,14 @@ for i, message in enumerate(st.session_state.messages):
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
     
-    # Display workflow logs for user messages
-    if (message["role"] == "user" and 
-        "log_index" in message and 
-        message["log_index"] < len(st.session_state.workflow_logs)):
+    # # Display workflow logs for user messages
+    # if (message["role"] == "user" and 
+    #     "log_index" in message and 
+    #     message["log_index"] < len(st.session_state.workflow_logs)):
         
-        with st.expander("🔍 View Workflow Execution Details", expanded=False):
-            logs = st.session_state.workflow_logs[message["log_index"]]
-            render_logs(logs)
+    #     with st.expander("🔍 View Workflow Execution Details", expanded=False):
+    #         logs = st.session_state.workflow_logs[message["log_index"]]
+    #         render_logs(logs)
 
 # Accept user input
 if prompt := st.chat_input("Ask a question about your document..."):
@@ -326,10 +353,10 @@ if prompt := st.chat_input("Ask a question about your document..."):
                 workflow_end = time.perf_counter()
                 workflow_time = workflow_end - workflow_start
             
-            # Display workflow logs
-            if log_index < len(st.session_state.workflow_logs):
-                with st.expander("🔍 View Workflow Execution Details", expanded=False):
-                    render_logs(st.session_state.workflow_logs[log_index])
+            # # Display workflow logs
+            # if log_index < len(st.session_state.workflow_logs):
+            #     with st.expander("🔍 View Workflow Execution Details", expanded=False):
+            #         render_logs(st.session_state.workflow_logs[log_index])
             
             # Get the final answer
             if isinstance(result, dict) and "answer" in result:
@@ -338,8 +365,8 @@ if prompt := st.chat_input("Ask a question about your document..."):
                 # Show additional info about the workflow
                 if result.get("web_search_used", False):
                     st.info("🌐 This response includes information from web search")
-                    if 'workflow_time' in locals():
-                        st.caption(f"🕒 Completion time: {workflow_time:.2f} s")
+                    # if 'workflow_time' in locals():
+                    #     st.caption(f"🕒 Completion time: {workflow_time:.2f} s")
                 else:
                     st.info("📚 This response is based on your document")
                     try:
@@ -372,8 +399,8 @@ if prompt := st.chat_input("Ask a question about your document..."):
                     times = []
                     if retrieval_time is not None:
                         times.append(f"🕒 Retrieval time: {retrieval_time:.2f} s")
-                    if 'workflow_time' in locals():
-                        times.append(f"🕒 Completion time: {workflow_time:.2f} s")
+                    # if 'workflow_time' in locals():
+                    #     times.append(f"🕒 Completion time: {workflow_time:.2f} s")
                     if times:
                         st.caption(" • ".join(times))
                 
