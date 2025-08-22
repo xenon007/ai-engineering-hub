@@ -23,12 +23,9 @@ inject_css()
 
 SAMPLE_CONFIG_STR = """{
   "mcpServers": {
-    "example": {
-      "command": "npx",
-      "args": ["-y", "@example/mcp-server"],
-      "env": {
-        "API_KEY": "your-api-key-here"
-      }
+    "stagehand": {
+      "command": "python",
+      "args": ["stagehand_mcp.py"]
     }
   }
 }"""
@@ -42,45 +39,21 @@ st.session_state.setdefault("messages", [])  # [{role, content}]
 
 
 async def _activate(cfg_dict: dict):
+    # Create MCPClient from configuration dictionary
     client = MCPClient.from_dict(cfg_dict)
-    await client.create_all_sessions()
-
-    tools = set()
-    for name in (cfg_dict.get("mcpServers") or {}):
-        try:
-            session = client.get_session(name)
-            for t in await session.list_tools():
-                tools.add(str(getattr(t, "name", None) or getattr(t, "tool", None) or "unknown"))
-        except Exception as e:
-            st.sidebar.warning(f"Could not list tools for '{name}': {e}")
-
-    # Use OpenAI API key from environment and model name
-    model_name = os.getenv("LLM_MODEL", "gpt-4o-mini")
     
-    # Create LLM with OpenAI API key from .env file
-    llm = ChatOpenAI(model=model_name, temperature=0)
+    # Create LLM
+    llm = ChatOpenAI(model="gpt-4o")
     
-    agent = MCPAgent(
-        llm=llm,
-        client=client,
-        system_prompt=(
-            "When using Browserbase tools, reuse an existing session if available. "
-            "If navigation fails due to a missing session or 429, call `browserbase_session_create` once, then retry."
-        ),
-        max_steps=int(os.getenv("MAX_STEPS", "20")),
-        memory_enabled=True,
-    )
-    return client, sorted(tools), agent
+    # Create agent with the client
+    agent = MCPAgent(llm=llm, client=client, max_steps=30)
+    
+    return client, [], agent
 
 
 
 
 def handle_activate():
-    if st.session_state.client is not None:
-        try:
-            asyncio.run(st.session_state.client.close_all_sessions())
-        except Exception:
-            pass
     try:
         cfg = json.loads(st.session_state.config_json)
         client, tools, agent = asyncio.run(_activate(cfg))
@@ -103,11 +76,6 @@ def handle_activate():
         st.sidebar.error(f"Failed to activate configuration: {e}")
 
 def handle_clear():
-    if st.session_state.client is not None:
-        try:
-            asyncio.run(st.session_state.client.close_all_sessions())
-        except Exception:
-            pass
     st.session_state.update(client=None, agent=None, tools=[], activated=False, messages=[])
 
 def _file_b64(path: str) -> str:
@@ -137,18 +105,11 @@ def _looks_transient(err_msg: str) -> bool:
     t = err_msg.lower()
     return ("no session found" in t) or ("429" in t) or ("rate limit" in t) or ("failed to create browserbase session" in t)
 
-def run_agent_with_retry(agent, prompt, max_retries: int = 1, backoff_sec: float = 2.5) -> str:
+def run_agent(agent, prompt) -> str:
     try:
         return asyncio.run(agent.run(prompt)) or "(no response)"
     except Exception as e:
-        first = str(e)
-        if _looks_transient(first) and max_retries > 0:
-            time.sleep(backoff_sec)
-            try:
-                return asyncio.run(agent.run(prompt)) or "(no response)"
-            except Exception as e2:
-                return f"⚠️ MCP/Agent error (after retry): {e2}"
-        return f"⚠️ MCP/Agent error: {first}"
+        return f"⚠️ MCP/Agent error: {e}"
 
 with st.sidebar:
     st.markdown("## MCP Configuration")
@@ -190,7 +151,7 @@ if user_input:
             assistant_text = "Please activate the configuration first."
         else:
             with st.spinner("Running agent..."):
-                assistant_text = run_agent_with_retry(st.session_state.agent, user_input)
+                assistant_text = run_agent(st.session_state.agent, user_input)
         ph.markdown(assistant_text, unsafe_allow_html=True)
 
     st.session_state.messages.append({"role": "user", "content": user_input})
