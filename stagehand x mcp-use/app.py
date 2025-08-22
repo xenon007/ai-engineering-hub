@@ -23,17 +23,11 @@ inject_css()
 
 SAMPLE_CONFIG_STR = """{
   "mcpServers": {
-    "browserbase": {
+    "example": {
       "command": "npx",
-      "args": [
-        "-y",
-        "@browserbasehq/mcp-server-browserbase",
-        "--modelName", "ollama/llama3.2:8b"
-      ],
+      "args": ["-y", "@example/mcp-server"],
       "env": {
-        "BROWSERBASE_API_KEY": "<your-browserbase-api-key>",
-        "BROWSERBASE_PROJECT_ID": "<your-browserbase-project-id>",
-        "OLLAMA_HOST": "http://127.0.0.1:11434"
+        "API_KEY": "your-api-key-here"
       }
     }
   }
@@ -43,13 +37,9 @@ st.session_state.setdefault("client", None)
 st.session_state.setdefault("agent", None)
 st.session_state.setdefault("activated", False)
 st.session_state.setdefault("tools", [])
-st.session_state.setdefault("config_json", SAMPLE_CONFIG_STR)
+st.session_state.setdefault("config_json", "")
 st.session_state.setdefault("messages", [])  # [{role, content}]
 
-def _read_config_file() -> dict:
-    cfg_path = os.getenv("MCP_CONFIG", "mcp-config.json")
-    with open(cfg_path, "r", encoding="utf-8") as f:
-        return json.load(f)
 
 async def _activate(cfg_dict: dict):
     client = MCPClient.from_dict(cfg_dict)
@@ -64,7 +54,12 @@ async def _activate(cfg_dict: dict):
         except Exception as e:
             st.sidebar.warning(f"Could not list tools for '{name}': {e}")
 
-    llm = ChatOpenAI(model=os.getenv("LLM_MODEL", "gpt-4o-mini"), temperature=0)
+    # Use OpenAI API key from environment and model name
+    model_name = os.getenv("LLM_MODEL", "gpt-4o-mini")
+    
+    # Create LLM with OpenAI API key from .env file
+    llm = ChatOpenAI(model=model_name, temperature=0)
+    
     agent = MCPAgent(
         llm=llm,
         client=client,
@@ -79,8 +74,6 @@ async def _activate(cfg_dict: dict):
 
 
 
-def handle_load_sample():
-    st.session_state.config_json = SAMPLE_CONFIG_STR
 
 def handle_activate():
     if st.session_state.client is not None:
@@ -89,13 +82,19 @@ def handle_activate():
         except Exception:
             pass
     try:
-        cfg = _read_config_file()
+        cfg = json.loads(st.session_state.config_json)
         client, tools, agent = asyncio.run(_activate(cfg))
         st.session_state.client = client
         st.session_state.tools = tools
         st.session_state.agent = agent
         st.session_state.activated = True
-        st.sidebar.success(f"Activated with config file: {os.getenv('MCP_CONFIG', 'mcp-config.json')}")
+        st.sidebar.success("✅ MCP Configuration activated successfully!")
+    except json.JSONDecodeError as e:
+        st.session_state.client = None
+        st.session_state.tools = []
+        st.session_state.agent = None
+        st.session_state.activated = False
+        st.sidebar.error(f"Invalid JSON configuration: {e}")
     except Exception as e:
         st.session_state.client = None
         st.session_state.tools = []
@@ -117,18 +116,16 @@ def _file_b64(path: str) -> str:
 
 def _render_hero():
     try:
-        sh_b64 = _file_b64(os.path.join("assets", "stagehand.png"))
         mu_b64 = _file_b64(os.path.join("assets", "mcp-use.png"))
     except Exception:
-        sh_b64 = mu_b64 = ""
+        mu_b64 = ""
     st.markdown(
         f"""
         <div class="hero">
-          <h1>Stagehand × mcp-use</h1>
-          <div class="logo-row">
-            <img src="data:image/png;base64,{sh_b64}" alt="Stagehand" />
-            <img src="data:image/png;base64,{mu_b64}" alt="mcp-use" />
-          </div>
+          <h1>100% Local MCP Client</h1>
+          <p class="subtitle">
+            Powered by <img src="data:image/png;base64,{mu_b64}" alt="mcp-use" class="inline-logo" />
+          </p>
         </div>
         """,
         unsafe_allow_html=True,
@@ -155,11 +152,10 @@ def run_agent_with_retry(agent, prompt, max_retries: int = 1, backoff_sec: float
 
 with st.sidebar:
     st.markdown("## MCP Configuration")
-    st.caption("Enter MCP Configuration (JSON)")
-    st.text_area("Enter MCP Configuration (JSON)", key="config_json", height=260, label_visibility="collapsed")
-    st.button("Load Sample Config", on_click=handle_load_sample)
-    st.button("Activate Configuration", on_click=handle_activate)
-    st.button("Clear Chat & Config", on_click=handle_clear)
+    st.caption("Paste your MCP configuration JSON below")
+    st.text_area("MCP Configuration JSON", key="config_json", height=300, placeholder=SAMPLE_CONFIG_STR, label_visibility="collapsed")
+    st.button("🚀 Activate Configuration", on_click=handle_activate, type="primary")
+    st.button("🧹 Clear All", on_click=handle_clear)
 
     st.divider()
     if not st.session_state.activated:
@@ -182,7 +178,7 @@ for msg in st.session_state.messages:
         st.markdown(msg["content"], unsafe_allow_html=True)
 
 # Current turn with opaque placeholder to avoid shadow
-user_input = st.chat_input("Ask Stagehand via MCP…")
+user_input = st.chat_input("Enter your message...")
 if user_input:
     with st.chat_message("user"):
         st.markdown(user_input)
