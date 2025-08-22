@@ -12,6 +12,7 @@ from mcp_use import MCPAgent, MCPClient
 import mcp_use
 
 from styles import inject_css
+from agent_wrapper import create_streaming_agent
 
 warnings.filterwarnings("ignore")
 load_dotenv()
@@ -111,6 +112,14 @@ def run_agent(agent, prompt) -> str:
     except Exception as e:
         return f"⚠️ MCP/Agent error: {e}"
 
+async def run_streaming_agent(streaming_agent, prompt, progress_container, tool_container):
+    """Run agent with streaming tool updates."""
+    try:
+        result = await streaming_agent.run_with_streaming(prompt, progress_container, tool_container)
+        return result or "(no response)"
+    except Exception as e:
+        return f"⚠️ MCP/Agent error: {e}"
+
 with st.sidebar:
     st.markdown("## MCP Configuration")
     st.caption("Paste your MCP configuration JSON below")
@@ -119,17 +128,9 @@ with st.sidebar:
     st.button("🧹 Clear All", on_click=handle_clear)
 
     st.divider()
-    if not st.session_state.activated:
-        st.warning("⚠️ Configuration not activated")
-    else:
+    if st.session_state.activated:
         st.success("✅ MCP Client Active")
         st.success("✅ Agent Ready")
-        st.markdown("**Available MCP tools:**")
-        if st.session_state.tools:
-            for t in st.session_state.tools:
-                st.markdown(f"- {t}")
-        else:
-            st.caption("• (no tools found)")
 
 _render_hero()
 
@@ -138,21 +139,39 @@ for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"], unsafe_allow_html=True)
 
-# Current turn with opaque placeholder to avoid shadow
+# Current turn with enhanced tool display
 user_input = st.chat_input("Enter your message...")
 if user_input:
     with st.chat_message("user"):
         st.markdown(user_input)
 
     with st.chat_message("assistant"):
-        ph = st.empty()
-        ph.markdown('<div class="bubble-opaque">&nbsp;</div>', unsafe_allow_html=True)
+        # Create containers for different parts of the response
+        progress_container = st.empty()
+        tool_container = st.container()
+        result_container = st.empty()
+        
         if not (st.session_state.activated and st.session_state.agent):
+            result_container.markdown("Please activate the configuration first.")
             assistant_text = "Please activate the configuration first."
         else:
-            with st.spinner("Running agent..."):
-                assistant_text = run_agent(st.session_state.agent, user_input)
-        ph.markdown(assistant_text, unsafe_allow_html=True)
+            # Create streaming agent wrapper
+            streaming_agent = create_streaming_agent(st.session_state.agent)
+            
+            # Show initial thinking state
+            result_container.markdown('<div class="bubble-opaque">&nbsp;</div>', unsafe_allow_html=True)
+            
+            # Run with streaming updates
+            try:
+                assistant_text = asyncio.run(
+                    run_streaming_agent(streaming_agent, user_input, progress_container, tool_container)
+                )
+            except Exception as e:
+                assistant_text = f"⚠️ Error running agent: {e}"
+                progress_container.error(f"❌ **Agent failed:** {str(e)}")
+            
+            # Show final result
+            result_container.markdown(assistant_text, unsafe_allow_html=True)
 
     st.session_state.messages.append({"role": "user", "content": user_input})
     st.session_state.messages.append({"role": "assistant", "content": assistant_text})
