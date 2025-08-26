@@ -1,65 +1,51 @@
-# MultiModal RAG with ColiVara and DeepSeek-Janus-Pro
+# Мультимодальный RAG с ColiVara и DeepSeek-Janus-Pro
 
-This project implements a MultiModal RAG with DeepSeek's latest model Janus-Pro and ColiVara.
+В этом проекте реализован мультимодальный RAG с использованием новейшей модели DeepSeek Janus-Pro и ColiVara.
 
-We use the following tools
-- DeepSeek-Janus-Pro as the multi-modal LLM.
-- [ColiVara](https://colivara.com/) for SOTA document understanding and retrieval.
-- [Firecrawl](https://www.firecrawl.dev/i/api) for web scraping.
-- Streamlit as the web interface.
+Мы используем следующие инструменты
+- DeepSeek-Janus-Pro в качестве мультимодального LLM.
+- [ColiVara](https://colivara.com/) для понимания и поиска документов SOTA.
+- [Firecrawl](https://www.firecrawl.dev/i/api) для веб-парсинга.
+- Streamlit в качестве веб-интерфейса.
 
-## Demo
+## Демонстрация
 
-A demo of the project is available below:
+Демонстрация проекта доступна ниже:
 
 ![demo](./video-demo.mp4)
 
 ---
-## Setup and installations
+## Настройка и установка
 
-**Setup Janus**:
+**Настройка Janus**:
 ```
 git clone https://github.com/deepseek-ai/Janus.git
 pip install -e ./Janus
 ```
 
-**Get the API keys**:
-- [ColiVara](https://colivara.com/) for SOTA document understanding and retrieval.
-- [Firecrawl](https://www.firecrawl.dev/i/api) for web scraping.
+**Получение ключей API**:
+- [ColiVara](https://colivara.com/) для понимания и поиска документов SOTA.
+- [Firecrawl](https://www.firecrawl.dev/i/api) для веб-парсинга.
 
-Create a .env file and store them as follows:
+Создайте файл .env и сохраните их следующим образом:
 ```python
 COLIVARA_API_KEY="<COLIVARA-API-KEY>"
 FIRECRAWL_API_KEY="<FIRECRAWL-API-KEY>"
 ```
 
 
-**Install Dependencies**:
-   Ensure you have Python 3.11 or later installed.
-   ```bash
+**Установите зависимости**:
+   Убедитесь, что у вас установлен Python 3.11 или более поздней версии.
+```bash
    pip install streamlit-pdf-viewer colivara-py streamlit fastembed flash-attn transformers
    ```
 
 ---
 
-## Run the project
+## Запустите проект
 
-Finally, run the project by running the following command:
+Наконец, запустите проект, выполнив следующую команду:
 
 ```bash
 streamlit run app.py
 ```
-
-
----
-
-## 📬 Stay Updated with Our Newsletter!
-**Get a FREE Data Science eBook** 📖 with 150+ essential lessons in Data Science when you subscribe to our newsletter! Stay in the loop with the latest tutorials, insights, and exclusive resources. [Subscribe now!](https://join.dailydoseofds.com)
-
-[![Daily Dose of Data Science Newsletter](https://github.com/patchy631/ai-engineering/blob/main/resources/join_ddods.png)](https://join.dailydoseofds.com)
-
----
-
-## Contribution
-
-Contributions are welcome! Please fork the repository and submit a pull request with your improvements.
