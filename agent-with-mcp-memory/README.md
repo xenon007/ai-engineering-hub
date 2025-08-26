@@ -1,114 +1,102 @@
-# Crash Course: Building AI Agents with Open-Source Tools
+# Интенсивный курс: Создание ИИ-агентов с помощью инструментов с открытым исходным кодом
 
-This project is a hands-on crash course on building AI agents using a 100% open-source tech stack! You'll learn:
+Этот проект представляет собой практический интенсивный курс по созданию ИИ-агентов с использованием технологий с полностью открытым исходным кодом! Вы узнаете:
 
-- What is an AI agent
-- Connecting agents to tools
-- Overview of MCP (Multi-Component Protocol)
-- Replacing tools with MCP servers
-- Setting up observability and tracing
+- Что такое ИИ-агент
+- Подключение агентов к инструментам
+- Обзор MCP (Multi-Component Protocol)
+- Замена инструментов серверами MCP
+- Настройка наблюдаемости и отслеживания
 
-All concepts are demonstrated with real, runnable code.
+Все концепции демонстрируются с помощью реального, работоспособного кода.
 
-### Watch this tutorial on YouTube
+### Посмотрите этот учебник на YouTube
 <a href="https://youtu.be/R6sMAZaTCR4">
-  <img src="assets/thumbnail.jpeg" alt="Watch this tutorial on YouTube" width="550"/>
+<img src="assets/thumbnail.jpeg" alt="Посмотрите этот учебник на YouTube" width="550"/>
 </a>
 
-## What is an AI Agent?
+## Что такое агент искусственного интеллекта?
 
-An AI agent uses an LLM as its brain, has memory to retain context, and can take real-world actions through tools (like browsing the web, running code, etc.).
+ИИ-агент использует LLM в качестве своего мозга, имеет память для сохранения контекста и может выполнять реальные действия с помощью инструментов (например, просматривать веб-страницы, запускать код и т. д.).
 
-In short: it thinks, remembers, and acts.
+Короче говоря: он думает, помнит и действует.
 
-## Tech Stack
+## Технический стек
 
-- [CrewAI](https://github.com/crewAIInc) — Build MCP-ready agents
-- [Zep Graphiti](https://github.com/getzep/graphiti) — Add human-like memory
-- [CometML Opik](https://github.com/comet-ml/opik) — Observability and tracing
-- 100% open-source!
+- [CrewAI](https://github.com/crewAIInc) — создание агентов, готовых к MCP
+- [Zep Graphiti](https://github.com/getzep/graphiti) — добавление памяти, подобной человеческой
+- [CometML Opik](https://github.com/comet-ml/opik) — наблюдаемость и отслеживание
+- 100% открытый исходный код!
 
-## System Overview
+## Обзор системы
 
-Here's how the system works:
+Вот как работает система:
 
-1. User sends a query
-2. Assistant runs a web search via MCP
-3. Query + results go to the Memory Manager
-4. Memory Manager stores context in Graphiti
-5. Response agent crafts the final answer
+1. Пользователь отправляет запрос
+2. Помощник запускает веб-поиск через MCP
+3. Запрос + результаты поступают в диспетчер памяти
+4. Диспетчер памяти сохраняет контекст в Graphiti
+5. Агент ответа формирует окончательный ответ
 
 ---
 
-### SetUp
+### Настройка
 
-- **Setup ollama:**
+- **Настройка Ollama:**
+1. Установите Ollama, следуя официальным инструкциям для вашей ОС:
 
-1. Install Ollama by following the official instructions for your OS:
+**Для macOS:**
+```bash
+curl -fsSL https://ollama.com/install.sh | sh
+```
 
-   **For macOS:**
-   ```bash
-   curl -fsSL https://ollama.com/install.sh | sh
-   ```
+**Для Linux:**
+```bash
+curl -fsSL https://ollama.com/install.sh | sh
+```
 
-   **For Linux:**
-   ```bash
-   curl -fsSL https://ollama.com/install.sh | sh
-   ```
+**Для Windows:**
+Загрузите и установите с [официального сайта Ollama](https://ollama.com/download)
 
-   **For Windows:**
-   Download and install from [Ollama's official website](https://ollama.com/download)
+2. Загрузите необходимую модель:
+```bash
+ollama pull llama3.2
+```
 
-2. Pull the required model:
-   ```bash
-   ollama pull llama3.2
-   ```
-
-You should see a response from the model. If you get any errors, check that Ollama is running with:
-
-
-- **Add all necessary keys:**
-  
-  Create a new `.env` file in the project root, using `.env.example` as a template. Copy the example file and fill in your own API keys and secrets as needed.
-  
-  ```bash
-  cp .env.example .env
-  # Then edit .env to add your keys
-  ```
-
-- **Install dependencies:**
-  
-  Run the following command in the project root to install all required dependencies:
-  
-  ```bash
-  uv sync
-  ```
-
-#### Start MCP servers:
-
-- **Start Linkup server:**
-
-  [Get your Linkup API keys here](https://www.linkup.so/)
-  
-  Run the following command in the project root:
-  
-  ```bash
-  python server.py
-  ```
-
-- **Start the Graphiti MCP server:**
-  
-  This is only for advanced usage, you cna still learn all the fundamentals with just Linkup MCP server also.
-
-  Follow the instructions in the [Graphiti MCP README](https://github.com/patchy631/ai-engineering-hub/blob/main/graphiti-mcp/README.md)
+Вы должны увидеть ответ от модели. Если вы получили какие-либо ошибки, проверьте, что Ollama работает, с помощью:
 
 
-## 📬 Stay Updated with Our Newsletter!
+- **Добавьте все необходимые ключи:**
 
-**Get a FREE Data Science eBook** 📖 with 150+ essential lessons in Data Science when you subscribe to our newsletter! Stay in the loop with the latest tutorials, insights, and exclusive resources. [Subscribe now!](https://join.dailydoseofds.com)
+Создайте новый файл `.env` в корневом каталоге проекта, используя `.env.example` в качестве шаблона. Скопируйте файл-пример и введите свои API-ключи и секретные ключи по мере необходимости.
 
-[![Daily Dose of Data Science Newsletter](https://github.com/patchy631/ai-engineering/blob/main/resources/join_ddods.png)](https://join.dailydoseofds.com)
+```bash
+cp .env.example .env
+# Затем отредактируйте .env, чтобы добавить свои ключи.
+```
 
-## Contribution
+- **Установите зависимости:**
 
-Contributions are welcome! Feel free to fork this repository and submit pull requests with your improvements.
+Выполните следующую команду в корневом каталоге проекта, чтобы установить все необходимые зависимости:
+
+```bash
+uv sync
+```
+
+#### Запустите серверы MCP:
+
+- **Запустите сервер Linkup:**
+
+[Получите ключи API Linkup здесь](https://www.linkup.so/)
+
+Выполните следующую команду в корневом каталоге проекта:
+
+```bash
+python server.py
+```
+
+- **Запустите сервер Graphiti MCP:**
+
+Это предназначено только для продвинутых пользователей, вы можете изучить все основы, используя только сервер Linkup MCP.
+
+Следуйте инструкциям в [Graphiti MCP README](https://github.com/xenon007/ai-engineering-hub/blob/main/graphiti-mcp/README.md)
