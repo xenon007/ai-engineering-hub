@@ -1,85 +1,74 @@
-# Summary Generator multi-agent workflow with ACP
+# Генератор резюме мультиагентного рабочего процесса с ACP
 
-A simple demonstration of the Agent Communication Protocol (ACP), showcasing how two agents built using different frameworks (CrewAI and Smolagents) can collaborate seamlessly to generate and verify a research summary.
+Простая демонстрация протокола связи агентов (ACP), показывающая, как два агента, построенные с использованием разных фреймворков (CrewAI и Smolagents), могут беспрепятственно сотрудничать для генерации и проверки резюме исследования.
 
 ---
 
-## Setup and Installation
+## Настройка и установка
 
-1. **Install Ollama:**
-   ```bash
-   # Setting up Ollama on linux
-   curl -fsSL https://ollama.com/install.sh | sh
+1. **Установите Ollama:**
+```bash
+# Настройка Ollama в Linux
+curl -fsSL https://ollama.com/install.sh | sh
 
-   # Pull the Qwen2.5 model
-   ollama pull qwen2.5:14b
-   ```
+# Загрузите модель Qwen2.5
+ollama pull qwen2.5:14b
+```
 
-2. **Install project dependencies:**
+2. **Установите зависимости проекта:**
 
-    Ensure you have Python 3.10 or later installed on your system.
+Убедитесь, что в вашей системе установлен Python 3.10 или более поздней версии.
 
-    First, install `uv` and set up the environment:
-    ```bash
-    # MacOS/Linux
-    curl -LsSf https://astral.sh/uv/install.sh | sh
+Сначала установите `uv` и настройте среду:
+```bash
+# MacOS/Linux
+curl -LsSf https://astral.sh/uv/install.sh | sh
 
-    # Windows
-    powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
-    ```
+# Windows
+powershell -ExecutionPolicy ByPass -c «irm https://astral.sh/uv/install.ps1 | iex»
+```
 
-    Install dependencies:
-    ```bash
-    # Create a new directory for our project
-    uv init acp-project
-    cd acp-project
+Установите зависимости:
+```bash
+# Создайте новый каталог для нашего проекта
+uv init acp-project
+cd acp-project
 
-    # Create virtual environment and activate it
-    uv venv
-    source .venv/bin/activate  # MacOS/Linux
+# Создайте виртуальную среду и активируйте ее
+uv venv
+source .venv/bin/activate  # MacOS/Linux
 
-    .venv\Scripts\activate     # Windows
+.venv\Scripts\activate     # Windows
 
-    # Install dependencies
-    uv add acp-sdk crewai smolagents duckduckgo-search ollama
-    ```
+# Установите зависимости
+uv add acp-sdk crewai smolagents duckduckgo-search ollama
+```
 
-You can also use any other LLM providers such as OpenAI or Anthropic. Create a `.env` file and add your API keys
+Вы также можете использовать любых других поставщиков LLM, таких как OpenAI или Anthropic. Создайте файл `.env` и добавьте свои ключи API
 ```
 OPENAI_API_KEY=your_openai_key
 ANTHROPIC_API_KEY=your_anthropic_key
 ```
 
-## Usage
-Start the two ACP servers in separate terminals:
+## Использование
+Запустите два сервера ACP в отдельных терминалах:
 
 ```bash
-# Terminal 1
+# Терминал 1
 uv run crew_acp_server.py
 
-# Terminal 2
+# Терминал 2
 uv run smolagents_acp_server.py
 ```
 
-Run the ACP client to trigger the agent workflow:
+Запустите клиент ACP, чтобы запустить рабочий процесс агента:
 
 ```bash
 uv run acp_client.py
 ```
 
-Output:
+Вывод:
 
-A general summary from the first agent
+Общее резюме от первого агента.
 
-A fact-checked and updated version from the second agent
-
-## 📬 Stay Updated with Our Newsletter!
-**Get a FREE Data Science eBook** 📖 with 150+ essential lessons in Data Science when you subscribe to our newsletter! Stay in the loop with the latest tutorials, insights, and exclusive resources. [Subscribe now!](https://join.dailydoseofds.com)
-
-[![Daily Dose of Data Science Newsletter](https://github.com/patchy631/ai-engineering/blob/main/resources/join_ddods.png)](https://join.dailydoseofds.com)
-
----
-
-## Contribution
-
-Contributions are welcome! Please fork the repository and submit a pull request with your improvements. 
+Проверенная и обновленная версия от второго агента.
